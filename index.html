@@ -1078,23 +1078,27 @@ function onSupabaseFailed() {
 }
 
 async function onSupabaseLoaded() {
-  document.addEventListener('DOMContentLoaded', async () => {
+  // NOTE: this callback fires after the script's `onload`, at which point
+  // DOMContentLoaded has already fired (the script uses `defer`).
+  // Do NOT wrap in DOMContentLoaded — run immediately.
   try {
     sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
     const { data: { session } } = await sb.auth.getSession();
+    const savedKey = localStorage.getItem('tmv_tmdb_key');
     if (session?.user) {
       currentUser = session.user;
-      const savedKey = localStorage.getItem('tmv_tmdb_key');
       if (savedKey) {
         await bootApp(savedKey);
       } else {
         showGateForUser(session.user);
       }
+    } else if (savedKey) {
+      // Guest returning with a previously saved TMDB key — auto-login
+      await bootApp(savedKey);
     }
   } catch(err) {
     console.error('Supabase init error:', err);
   }
-  }); // end DOMContentLoaded
 }
 
 function showGateForUser(user) {
