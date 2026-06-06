@@ -1057,6 +1057,7 @@ async function initApp() {
   try {
     const r = await fetch(`${TMDB_BASE}/trending/movie/week?api_key=${key}&language=en-US`);
     if (!r.ok) throw new Error('bad key');
+    localStorage.setItem('tmv_tmdb_key', key);
     await bootApp(key);
   } catch(e) {
     document.getElementById('gate-error').style.display = 'block';
@@ -1067,21 +1068,19 @@ async function initApp() {
 document.getElementById('api-key-input').addEventListener('keydown', e => { if (e.key === 'Enter') initApp(); });
 
 // On page load — check if returning from Google OAuth
-(async () => {
+document.addEventListener('DOMContentLoaded', async () => {
   const { data: { session } } = await sb.auth.getSession();
   if (session?.user) {
     currentUser = session.user;
-    // Still need TMDB key — check localStorage
     const savedKey = localStorage.getItem('tmv_tmdb_key');
     if (savedKey) {
       await bootApp(savedKey);
     } else {
-      // Show gate but pre-fill sign-in state — ask for TMDB key
       showGateForUser(session.user);
     }
   }
-  // If no session, just show the gate normally
-})();
+  // If no session, gate is already visible by default
+});
 
 function showGateForUser(user) {
   const gate = document.getElementById('auth-gate');
@@ -1126,15 +1125,6 @@ function toggleUserMenu() {
 document.addEventListener('click', e => {
   if (!e.target.closest('.user-pill')) document.getElementById('user-menu')?.classList.remove('open');
 });
-
-// ─── SAVE TMDB KEY ────────────────────────────────────────────────
-// Save TMDB key to localStorage so it survives OAuth redirect
-const _origInitApp = initApp;
-async function initApp() {
-  const key = document.getElementById('api-key-input').value.trim();
-  if (key) localStorage.setItem('tmv_tmdb_key', key);
-  await _origInitApp();
-}
 
 // ─── LANG DETECTION ───────────────────────────────────────────────
 function detectLang(text) {
