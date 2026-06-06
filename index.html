@@ -43,8 +43,8 @@
     min-height: 100vh;
   }
 
-  /* API KEY GATE */
-  #api-gate {
+  /* AUTH GATE */
+  #auth-gate {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -53,15 +53,15 @@
     padding: 2rem;
     text-align: center;
   }
-  #api-gate h1 {
+  #auth-gate h1 {
     font-family: var(--font-display);
     font-size: 40px;
     font-weight: 700;
     margin-bottom: 8px;
     color: #fff;
   }
-  #api-gate p { color: var(--text2); margin-bottom: 2rem; font-size: 15px; }
-  #api-gate .gate-box {
+  #auth-gate p { color: var(--text2); margin-bottom: 2rem; font-size: 15px; }
+  #auth-gate .gate-box {
     background: var(--surface);
     border: 1px solid var(--border2);
     border-radius: var(--r-lg);
@@ -69,8 +69,8 @@
     width: 100%;
     max-width: 460px;
   }
-  #api-gate label { display: block; text-align: left; font-size: 12px; color: var(--text2); margin-bottom: 6px; letter-spacing: 0.05em; text-transform: uppercase; }
-  #api-gate input {
+  #auth-gate label { display: block; text-align: left; font-size: 12px; color: var(--text2); margin-bottom: 6px; letter-spacing: 0.05em; text-transform: uppercase; }
+  #auth-gate input {
     width: 100%;
     background: var(--surface2);
     border: 1px solid var(--border2);
@@ -83,8 +83,8 @@
     margin-bottom: 12px;
     transition: border-color 0.2s;
   }
-  #api-gate input:focus { border-color: var(--accent); }
-  #api-gate button {
+  #auth-gate input:focus { border-color: var(--accent); }
+  #auth-gate button {
     width: 100%;
     background: var(--accent);
     color: #fff;
@@ -97,10 +97,105 @@
     cursor: pointer;
     transition: opacity 0.2s;
   }
-  #api-gate button:hover { opacity: 0.88; }
-  #api-gate .hint { margin-top: 14px; font-size: 12px; color: var(--text3); }
-  #api-gate .hint a { color: var(--accent2); text-decoration: none; }
+  #auth-gate button:hover { opacity: 0.88; }
+  #auth-gate .hint { margin-top: 14px; font-size: 12px; color: var(--text3); }
+  #auth-gate .hint a { color: var(--accent2); text-decoration: none; }
   #gate-error { color: var(--danger); font-size: 13px; margin-top: 8px; display: none; }
+
+  /* GOOGLE SIGN-IN BUTTON */
+  #google-btn {
+    background: #fff !important;
+    color: #3c3c3c !important;
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    font-family: var(--font-body) !important;
+    font-size: 15px !important;
+    font-weight: 500 !important;
+    border: 1px solid #ddd !important;
+    margin-bottom: 0 !important;
+    transition: box-shadow 0.2s !important;
+  }
+  #google-btn:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.15); opacity: 1 !important; }
+
+  .gate-divider {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 16px 0;
+    color: var(--text3);
+    font-size: 12px;
+  }
+  .gate-divider::before, .gate-divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border2);
+  }
+
+  /* USER AREA IN HEADER */
+  #user-area { margin-left: auto; flex-shrink: 0; position: relative; }
+  .user-pill {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 10px 4px 4px;
+    border-radius: 50px;
+    border: 1px solid var(--border2);
+    background: var(--surface2);
+    cursor: pointer;
+    transition: border-color 0.2s;
+    font-size: 13px;
+    color: var(--text2);
+  }
+  .user-pill:hover { border-color: var(--accent); color: var(--text); }
+  .user-avatar { width: 26px; height: 26px; border-radius: 50%; object-fit: cover; }
+  .user-avatar-ph {
+    width: 26px; height: 26px; border-radius: 50%;
+    background: var(--surface3);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; color: var(--text3);
+  }
+  .user-name { font-weight: 500; max-width: 100px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .user-guest-btn {
+    display: flex; align-items: center; gap: 6px;
+    padding: 6px 12px;
+    border-radius: 50px;
+    border: 1px solid var(--border2);
+    background: transparent;
+    color: var(--text3);
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .user-guest-btn:hover { border-color: var(--danger); color: var(--danger); }
+
+  .user-menu {
+    display: none;
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    background: var(--surface);
+    border: 1px solid var(--border2);
+    border-radius: var(--r);
+    min-width: 200px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+    z-index: 200;
+    overflow: hidden;
+  }
+  .user-menu.open { display: block; }
+  .user-menu-info { padding: 12px 14px; }
+  .user-menu-divider { height: 1px; background: var(--border); }
+  .user-menu-btn {
+    display: flex; align-items: center; gap: 8px;
+    width: 100%; padding: 10px 14px;
+    background: none; border: none;
+    color: var(--text2); font-size: 13px;
+    cursor: pointer; text-align: left;
+    transition: background 0.15s, color 0.15s;
+  }
+  .user-menu-btn:hover { background: var(--surface2); color: var(--danger); }
 
   /* MAIN APP */
   #app { display: none; flex-direction: column; min-height: 100vh; }
@@ -720,22 +815,25 @@
     color: var(--text2);
   }
   .wpop-cancel:hover { border-color: var(--text3); color: var(--text); }
-</style>
 </head>
 <body>
 
-<!-- API GATE -->
-<div id="api-gate">
+<!-- AUTH GATE -->
+<div id="auth-gate">
   <h1><span style="color:#005BBB">Track</span><span style="color:#FFD500">My</span>Movie</h1>
   <p>Your personal movie &amp; TV tracker</p>
   <div class="gate-box">
+    <button id="google-btn" onclick="signInGoogle()">
+      <svg width="18" height="18" viewBox="0 0 18 18" style="flex-shrink:0"><path fill="#4285F4" d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.874 2.684-6.615z"/><path fill="#34A853" d="M9 18c2.43 0 4.467-.806 5.956-2.184l-2.908-2.258c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332C2.438 15.983 5.482 18 9 18z"/><path fill="#FBBC05" d="M3.964 10.707c-.18-.54-.282-1.117-.282-1.707s.102-1.167.282-1.707V4.961H.957C.347 6.175 0 7.55 0 9s.348 2.826.957 4.039l3.007-2.332z"/><path fill="#EA4335" d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0 5.482 0 2.438 2.017.957 4.961L3.964 7.293C4.672 5.166 6.656 3.58 9 3.58z"/></svg>
+      Continue with Google
+    </button>
+    <div class="gate-divider"><span>or enter TMDB key to continue as guest</span></div>
     <label for="api-key-input">TMDB API Key (v3 auth)</label>
     <input type="password" id="api-key-input" placeholder="Paste your key here..." />
     <div id="gate-error">❌ Invalid key or network error. Please check and try again.</div>
-    <button id="gate-btn" onclick="initApp()">Get started →</button>
+    <button id="gate-btn" onclick="initApp()">Continue as guest →</button>
     <div class="hint">
-      Free key at <a href="https://www.themoviedb.org/settings/api" target="_blank">themoviedb.org/settings/api</a><br>
-      Your key is stored locally in your browser only.
+      Free key at <a href="https://www.themoviedb.org/settings/api" target="_blank">themoviedb.org/settings/api</a>
     </div>
   </div>
 </div>
@@ -749,6 +847,7 @@
       <input type="text" id="search-input" placeholder="Search in English, Русский, Українська..." />
       <span class="lang-badge" id="lang-badge"></span>
     </div>
+    <div id="user-area"></div>
   </header>
 
   <div class="tabs">
@@ -775,34 +874,269 @@
 <!-- DETAIL VIEW -->
 <div id="detail-view"></div>
 
+<!-- WATCHED COMPLETION POPUP -->
+<div id="watched-popup">
+  <div id="watched-popup-backdrop" onclick="closeWatchedPopup()"></div>
+  <div id="watched-popup-box">
+    <div id="watched-popup-icon">🎉</div>
+    <div id="watched-popup-title">All episodes watched!</div>
+    <div id="watched-popup-desc">You've checked every released episode.<br>Move this show to your <strong>Watched</strong> list?</div>
+    <div id="watched-popup-actions">
+      <button class="wpop-btn wpop-confirm" onclick="confirmWatched()">✓ Move to Watched</button>
+      <button class="wpop-btn wpop-cancel" onclick="closeWatchedPopup()">Not yet</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
+// ─── CONFIG ───────────────────────────────────────────────────────
+const SUPABASE_URL  = 'https://qpxaiztckfbcktfzsmmb.supabase.co';
+const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFweGFpenRja2ZiY2t0ZnpzbW1iIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA3NTg3NDUsImV4cCI6MjA5NjMzNDc0NX0.5kZ-owTKhGaGdawpDfWW0lIFUafsYMOqcNMSwtZk8Wo';
+const TMDB_BASE     = 'https://api.themoviedb.org/3';
+const IMG           = 'https://image.tmdb.org/t/p/';
+
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
+
+// ─── STATE ────────────────────────────────────────────────────────
 let API_KEY = '';
-const TMDB = 'https://api.themoviedb.org/3';
-const IMG  = 'https://image.tmdb.org/t/p/';
-let currentTab = 'discover';
+let currentUser = null;   // Supabase user object (null = guest)
+let currentTab  = 'discover';
 let searchTimer = null;
-let watchlist = {};
-let episodeChecks = {};
-let genreMap = {};  // id -> name
-let airStatusCache = {};  // showId -> 'onair'|'ended'|'canceled'
+let watchlist   = {};     // { showId: { status, item } }
+let episodeChecks = {};   // { key: true }
+let genreMap    = {};
+let airStatusCache = {};
+let _popupShowId = null;
+let _popupData   = null;
 
-function loadStorage() {
-  try { watchlist = JSON.parse(localStorage.getItem('cinemate_wl') || '{}'); } catch(e) { watchlist = {}; }
-  try { episodeChecks = JSON.parse(localStorage.getItem('cinemate_ep') || '{}'); } catch(e) { episodeChecks = {}; }
+// ─── SUPABASE AUTH ────────────────────────────────────────────────
+async function signInGoogle() {
+  await sb.auth.signInWithOAuth({
+    provider: 'google',
+    options: { redirectTo: window.location.href }
+  });
 }
-function saveWL() { try { localStorage.setItem('cinemate_wl', JSON.stringify(watchlist)); } catch(e) {} }
-function saveEP() { try { localStorage.setItem('cinemate_ep', JSON.stringify(episodeChecks)); } catch(e) {} }
 
+async function signOut() {
+  await sb.auth.signOut();
+  currentUser = null;
+  watchlist = {};
+  episodeChecks = {};
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('detail-view').style.display = 'none';
+  document.getElementById('auth-gate').style.display = 'flex';
+}
+
+// ─── STORAGE: SUPABASE (logged in) or localStorage (guest) ────────
+async function loadWatchlist() {
+  if (currentUser) {
+    const { data } = await sb.from('watchlist').select('show_id,status,item');
+    watchlist = {};
+    (data||[]).forEach(r => { watchlist[r.show_id] = { status: r.status, item: r.item }; });
+  } else {
+    try { watchlist = JSON.parse(localStorage.getItem('tmv_wl') || '{}'); } catch(e) { watchlist = {}; }
+  }
+}
+
+async function saveWL() {
+  if (currentUser) {
+    // nothing — individual saves happen on each toggle
+  } else {
+    try { localStorage.setItem('tmv_wl', JSON.stringify(watchlist)); } catch(e) {}
+  }
+}
+
+async function toggleWatchlistDB(showId, status, item) {
+  const cur = watchlist[showId]?.status;
+  if (cur === status) {
+    delete watchlist[showId];
+    if (currentUser) await sb.from('watchlist').delete().eq('show_id', showId).eq('user_id', currentUser.id);
+  } else {
+    watchlist[showId] = { status, item };
+    if (currentUser) {
+      await sb.from('watchlist').upsert({
+        user_id: currentUser.id,
+        show_id: showId,
+        status,
+        item,
+        updated_at: new Date().toISOString()
+      }, { onConflict: 'user_id,show_id' });
+    }
+  }
+  if (!currentUser) saveWL();
+}
+
+async function loadEpisodeChecks() {
+  if (currentUser) {
+    const { data } = await sb.from('episode_checks').select('key');
+    episodeChecks = {};
+    (data||[]).forEach(r => { episodeChecks[r.key] = true; });
+  } else {
+    try { episodeChecks = JSON.parse(localStorage.getItem('tmv_ep') || '{}'); } catch(e) { episodeChecks = {}; }
+  }
+}
+
+async function saveEpCheck(key, checked) {
+  if (currentUser) {
+    if (checked) {
+      await sb.from('episode_checks').upsert({ user_id: currentUser.id, key, updated_at: new Date().toISOString() }, { onConflict: 'user_id,key' });
+    } else {
+      await sb.from('episode_checks').delete().eq('key', key).eq('user_id', currentUser.id);
+    }
+  } else {
+    if (checked) episodeChecks[key] = true;
+    else delete episodeChecks[key];
+    try { localStorage.setItem('tmv_ep', JSON.stringify(episodeChecks)); } catch(e) {}
+  }
+}
+
+async function saveAllEpChecks(keys) {
+  if (currentUser) {
+    const rows = keys.map(key => ({ user_id: currentUser.id, key, updated_at: new Date().toISOString() }));
+    await sb.from('episode_checks').upsert(rows, { onConflict: 'user_id,key' });
+    keys.forEach(k => { episodeChecks[k] = true; });
+  } else {
+    keys.forEach(k => { episodeChecks[k] = true; });
+    try { localStorage.setItem('tmv_ep', JSON.stringify(episodeChecks)); } catch(e) {}
+  }
+}
+
+// ─── INIT ─────────────────────────────────────────────────────────
 async function loadGenres() {
   try {
     const [mv, tv] = await Promise.all([
-      fetch(`${TMDB}/genre/movie/list?api_key=${API_KEY}&language=en-US`).then(r=>r.json()),
-      fetch(`${TMDB}/genre/tv/list?api_key=${API_KEY}&language=en-US`).then(r=>r.json())
+      fetch(`${TMDB_BASE}/genre/movie/list?api_key=${API_KEY}&language=en-US`).then(r=>r.json()),
+      fetch(`${TMDB_BASE}/genre/tv/list?api_key=${API_KEY}&language=en-US`).then(r=>r.json())
     ]);
     [...(mv.genres||[]), ...(tv.genres||[])].forEach(g => { genreMap[g.id] = g.name; });
   } catch(e) {}
 }
 
+async function prefetchAirStatus() {
+  const tvIds = Object.values(watchlist)
+    .map(v => v.item)
+    .filter(i => i && (i.media_type === 'tv' || i.name))
+    .map(i => i.id);
+  await Promise.allSettled(tvIds.map(async id => {
+    try {
+      const d = await fetch(`${TMDB_BASE}/tv/${id}?api_key=${API_KEY}&language=en-US`).then(r=>r.json());
+      const s = getAirStatus(d, 'tv');
+      if (s) airStatusCache[id] = s;
+    } catch(e) {}
+  }));
+}
+
+async function bootApp(key) {
+  API_KEY = key;
+  await loadGenres();
+  await loadWatchlist();
+  await loadEpisodeChecks();
+  await prefetchAirStatus();
+
+  document.getElementById('auth-gate').style.display = 'none';
+  const app = document.getElementById('app');
+  app.style.display = 'flex';
+  app.style.flexDirection = 'column';
+  app.style.minHeight = '100vh';
+
+  renderUserArea();
+  setupSearch();
+  updateCounts();
+  loadDiscover();
+}
+
+// Called by guest "Continue" button
+async function initApp() {
+  const key = document.getElementById('api-key-input').value.trim();
+  if (!key) return;
+  const btn = document.getElementById('gate-btn');
+  btn.textContent = 'Verifying…';
+  btn.disabled = true;
+  document.getElementById('gate-error').style.display = 'none';
+  try {
+    const r = await fetch(`${TMDB_BASE}/trending/movie/week?api_key=${key}&language=en-US`);
+    if (!r.ok) throw new Error('bad key');
+    await bootApp(key);
+  } catch(e) {
+    document.getElementById('gate-error').style.display = 'block';
+    btn.textContent = 'Continue as guest →';
+    btn.disabled = false;
+  }
+}
+document.getElementById('api-key-input').addEventListener('keydown', e => { if (e.key === 'Enter') initApp(); });
+
+// On page load — check if returning from Google OAuth
+(async () => {
+  const { data: { session } } = await sb.auth.getSession();
+  if (session?.user) {
+    currentUser = session.user;
+    // Still need TMDB key — check localStorage
+    const savedKey = localStorage.getItem('tmv_tmdb_key');
+    if (savedKey) {
+      await bootApp(savedKey);
+    } else {
+      // Show gate but pre-fill sign-in state — ask for TMDB key
+      showGateForUser(session.user);
+    }
+  }
+  // If no session, just show the gate normally
+})();
+
+function showGateForUser(user) {
+  const gate = document.getElementById('auth-gate');
+  gate.style.display = 'flex';
+  // Replace google button with welcome + ask for TMDB key
+  document.getElementById('google-btn').style.display = 'none';
+  document.querySelector('.gate-divider').style.display = 'none';
+  const label = document.createElement('div');
+  label.style.cssText = 'color:#34c87a;font-size:14px;margin-bottom:16px;display:flex;align-items:center;gap:8px;justify-content:center';
+  label.innerHTML = `<i class="ti ti-circle-check"></i> Signed in as <strong>${user.email}</strong>`;
+  document.querySelector('.gate-box').prepend(label);
+}
+
+// ─── USER AREA IN HEADER ──────────────────────────────────────────
+function renderUserArea() {
+  const area = document.getElementById('user-area');
+  if (!currentUser) {
+    area.innerHTML = `<button class="user-guest-btn" onclick="signOut()"><i class="ti ti-logout"></i> Guest</button>`;
+    return;
+  }
+  const avatar = currentUser.user_metadata?.avatar_url;
+  const name   = currentUser.user_metadata?.full_name || currentUser.email;
+  area.innerHTML = `
+    <div class="user-pill" onclick="toggleUserMenu()">
+      ${avatar ? `<img src="${avatar}" class="user-avatar" alt="${name}">` : `<div class="user-avatar-ph"><i class="ti ti-user"></i></div>`}
+      <span class="user-name">${name.split(' ')[0]}</span>
+      <i class="ti ti-chevron-down" style="font-size:12px;color:var(--text3)"></i>
+    </div>
+    <div class="user-menu" id="user-menu">
+      <div class="user-menu-info">
+        <div style="font-weight:600;font-size:13px">${name}</div>
+        <div style="font-size:11px;color:var(--text3)">${currentUser.email}</div>
+      </div>
+      <div class="user-menu-divider"></div>
+      <button class="user-menu-btn" onclick="signOut()"><i class="ti ti-logout"></i> Sign out</button>
+    </div>`;
+}
+
+function toggleUserMenu() {
+  document.getElementById('user-menu')?.classList.toggle('open');
+}
+document.addEventListener('click', e => {
+  if (!e.target.closest('.user-pill')) document.getElementById('user-menu')?.classList.remove('open');
+});
+
+// ─── SAVE TMDB KEY ────────────────────────────────────────────────
+// Save TMDB key to localStorage so it survives OAuth redirect
+const _origInitApp = initApp;
+async function initApp() {
+  const key = document.getElementById('api-key-input').value.trim();
+  if (key) localStorage.setItem('tmv_tmdb_key', key);
+  await _origInitApp();
+}
+
+// ─── LANG DETECTION ───────────────────────────────────────────────
 function detectLang(text) {
   if (!/[\u0400-\u04FF]/.test(text)) return null;
   if (/[іїєґ]/i.test(text)) return 'UK';
@@ -815,56 +1149,14 @@ function tmdbLang(text) {
   return 'en-US';
 }
 
-async function initApp() {
-  const key = document.getElementById('api-key-input').value.trim();
-  if (!key) return;
-  const btn = document.getElementById('gate-btn');
-  btn.textContent = 'Verifying…';
-  btn.disabled = true;
-  document.getElementById('gate-error').style.display = 'none';
-  try {
-    const r = await fetch(`${TMDB}/trending/movie/week?api_key=${key}&language=en-US`);
-    if (!r.ok) throw new Error('bad key');
-    API_KEY = key;
-    loadStorage();
-    await loadGenres();
-    // Pre-fetch air status for TV shows already in watchlist
-    const tvIds = Object.values(watchlist)
-      .map(v => v.item)
-      .filter(i => i && (i.media_type === 'tv' || i.name))
-      .map(i => i.id);
-    await Promise.allSettled(tvIds.map(async id => {
-      try {
-        const r = await fetch(`${TMDB}/tv/${id}?api_key=${key}&language=en-US`);
-        const d = await r.json();
-        const s = getAirStatus(d, 'tv');
-        if (s) airStatusCache[id] = s;
-      } catch(e) {}
-    }));
-    document.getElementById('api-gate').style.display = 'none';
-    const app = document.getElementById('app');
-    app.style.display = 'flex';
-    app.style.flexDirection = 'column';
-    app.style.minHeight = '100vh';
-    setupSearch();
-    updateCounts();
-    loadDiscover();
-  } catch(e) {
-    document.getElementById('gate-error').style.display = 'block';
-    btn.textContent = 'Get started →';
-    btn.disabled = false;
-  }
-}
-document.getElementById('api-key-input').addEventListener('keydown', e => { if (e.key === 'Enter') initApp(); });
-
+// ─── SEARCH ───────────────────────────────────────────────────────
 function setupSearch() {
   const inp = document.getElementById('search-input');
   const badge = document.getElementById('lang-badge');
   inp.addEventListener('input', () => {
     const q = inp.value.trim();
-    const lang = detectLang(q);
-    badge.textContent = lang || '';
-    badge.classList.toggle('visible', !!lang);
+    badge.textContent = detectLang(q) || '';
+    badge.classList.toggle('visible', !!detectLang(q));
     clearTimeout(searchTimer);
     if (q.length < 2) { if (!q) switchTab(currentTab, true); return; }
     searchTimer = setTimeout(() => doSearch(q), 380);
@@ -878,69 +1170,66 @@ async function doSearch(q) {
   const lang = tmdbLang(q);
   showLoading();
   try {
-    const r = await fetch(`${TMDB}/search/multi?api_key=${API_KEY}&language=${lang}&query=${encodeURIComponent(q)}&include_adult=false`);
+    const r = await fetch(`${TMDB_BASE}/search/multi?api_key=${API_KEY}&language=${lang}&query=${encodeURIComponent(q)}&include_adult=false`);
     const d = await r.json();
-    const results = (d.results || []).filter(x => x.media_type === 'movie' || x.media_type === 'tv');
+    const results = (d.results||[]).filter(x => x.media_type==='movie'||x.media_type==='tv');
     renderGrid(results, `Results for "${q}"`);
   } catch(e) { renderError(); }
 }
 
+// ─── DISCOVER ─────────────────────────────────────────────────────
 async function loadDiscover() {
   showLoading();
   try {
     const [tr, tv] = await Promise.all([
-      fetch(`${TMDB}/trending/all/week?api_key=${API_KEY}&language=en-US`).then(r=>r.json()),
-      fetch(`${TMDB}/tv/top_rated?api_key=${API_KEY}&language=en-US`).then(r=>r.json())
+      fetch(`${TMDB_BASE}/trending/all/week?api_key=${API_KEY}&language=en-US`).then(r=>r.json()),
+      fetch(`${TMDB_BASE}/tv/top_rated?api_key=${API_KEY}&language=en-US`).then(r=>r.json())
     ]);
     const c = document.getElementById('main-content');
     c.innerHTML = `
       <div class="section-label">Trending this week</div>
       <div class="grid" id="g-trending"></div>
       <div class="section-label" style="margin-top:2rem">Top rated series</div>
-      <div class="grid" id="g-toptv"></div>
-    `;
+      <div class="grid" id="g-toptv"></div>`;
     renderCards(tr.results.slice(0,18), 'g-trending');
     renderCards(tv.results.slice(0,12).map(x=>({...x,media_type:'tv'})), 'g-toptv');
   } catch(e) { renderError(); }
 }
 
+// ─── RENDER GRID ──────────────────────────────────────────────────
 function renderGrid(items, label) {
   const c = document.getElementById('main-content');
   if (!items.length) {
-    c.innerHTML = `<div class="empty-state"><i class="ti ti-mood-sad"></i><p>Nothing found. Try a different query.</p></div>`;
+    c.innerHTML = `<div class="empty-state"><i class="ti ti-mood-sad"></i><p>Nothing found.</p></div>`;
     return;
   }
   c.innerHTML = `<div class="section-label">${label} — ${items.length} results</div><div class="grid" id="g-results"></div>`;
   renderCards(items, 'g-results');
 }
 
+// ─── RENDER CARDS ─────────────────────────────────────────────────
 function renderCards(items, gridId) {
   const grid = document.getElementById(gridId);
   if (!grid) return;
   items.forEach(item => {
     if (!item) return;
-    const type  = item.media_type || 'movie';
-    const title = item.title || item.name || 'Unknown';
-    const year  = (item.release_date || item.first_air_date || '').slice(0,4);
+    const type   = item.media_type || 'movie';
+    const title  = item.title || item.name || 'Unknown';
+    const year   = (item.release_date || item.first_air_date || '').slice(0,4);
     const poster = item.poster_path ? `${IMG}w300${item.poster_path}` : null;
-    const state = watchlist[item.id]?.status || null;
-
-    // Genre: first 2 genre names from genre_ids
-    const genreNames = (item.genre_ids || []).slice(0,2).map(id => genreMap[id]).filter(Boolean);
-    const genreText = genreNames.join(' · ') || '';
-
-    // Seasons (TV only)
-    const seasons = type === 'tv' && item.number_of_seasons ? item.number_of_seasons : null;
+    const state  = watchlist[item.id]?.status || null;
+    const genreNames = (item.genre_ids||[]).slice(0,2).map(id=>genreMap[id]).filter(Boolean);
+    const genreText  = genreNames.join(' · ');
+    const seasons    = type==='tv' && item.number_of_seasons ? item.number_of_seasons : null;
+    const airSt      = type==='tv' ? airStatusCache[item.id] : null;
+    const airLabels  = { onair:'● On Air', ended:'■ Finished', canceled:'✕ Canceled' };
 
     const div = document.createElement('div');
     div.className = 'card';
     div.dataset.id = item.id;
-
     div.innerHTML = `
       ${state ? `<div class="status-ribbon ribbon-${state}"></div>` : ''}
-      ${poster
-        ? `<img class="card-poster" src="${poster}" alt="${title}" loading="lazy">`
-        : `<div class="card-poster-placeholder"><i class="ti ti-photo"></i></div>`}
+      ${poster ? `<img class="card-poster" src="${poster}" alt="${title}" loading="lazy">` : `<div class="card-poster-placeholder"><i class="ti ti-photo"></i></div>`}
       <div class="card-overlay"></div>
       <div class="card-actions">
         <button class="wl-btn ${state==='watchlist'?'wl-active-watchlist':''}" title="Want to watch"><i class="ti ti-bookmark"></i></button>
@@ -954,31 +1243,23 @@ function renderCards(items, gridId) {
         <div class="card-badges">
           <span class="badge badge-type">${type==='tv'?'Series':'Movie'}</span>
           ${year ? `<span class="badge badge-year">${year}</span>` : ''}
-          ${(()=>{ const as = type==='tv' ? airStatusCache[item.id] : null; if(!as) return ''; const labels={onair:'● On Air',ended:'■ Finished',canceled:'✕ Canceled'}; return `<span class="badge badge-${as}">${labels[as]}</span>`; })()}
+          ${airSt ? `<span class="badge badge-${airSt}">${airLabels[airSt]}</span>` : ''}
         </div>
       </div>`;
 
     const btns = div.querySelectorAll('.wl-btn');
-    const statuses = ['watchlist','watching','watched'];
-    btns.forEach((btn, i) => {
-      btn.addEventListener('click', e => {
+    ['watchlist','watching','watched'].forEach((s,i) => {
+      btns[i].addEventListener('click', async e => {
         e.stopPropagation();
-        toggleStatus(item.id, statuses[i], item, div);
+        await toggleWatchlistDB(item.id, s, item);
+        updateCounts();
+        updateCardUI(item.id, div);
+        if (currentTab !== 'discover') renderWatchlistTab(currentTab);
       });
     });
     div.addEventListener('click', () => openDetail(item.id, type));
     grid.appendChild(div);
   });
-}
-
-function toggleStatus(id, status, item, cardEl) {
-  const cur = watchlist[id]?.status;
-  if (cur === status) delete watchlist[id];
-  else watchlist[id] = { status, item };
-  saveWL();
-  updateCounts();
-  if (cardEl) updateCardUI(id, cardEl);
-  if (currentTab !== 'discover') renderWatchlistTab(currentTab);
 }
 
 function updateCardUI(id, cardEl) {
@@ -991,8 +1272,8 @@ function updateCardUI(id, cardEl) {
     cardEl.prepend(r);
   }
   const btns = cardEl.querySelectorAll('.wl-btn');
-  const cls = ['wl-active-watchlist','wl-active-watching','wl-active-watched'];
-  btns.forEach((b,i) => b.classList.toggle(cls[i], state === ['watchlist','watching','watched'][i]));
+  const cls  = ['wl-active-watchlist','wl-active-watching','wl-active-watched'];
+  btns.forEach((b,i) => b.classList.toggle(cls[i], state===(['watchlist','watching','watched'][i])));
 }
 
 function updateCounts() {
@@ -1005,12 +1286,12 @@ function updateCounts() {
 
 function switchTab(tab, silent) {
   currentTab = tab;
-  document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab===tab));
   if (!silent) {
     document.getElementById('search-input').value = '';
     document.getElementById('lang-badge').classList.remove('visible');
   }
-  if (tab === 'discover') loadDiscover();
+  if (tab==='discover') loadDiscover();
   else renderWatchlistTab(tab);
 }
 
@@ -1028,8 +1309,9 @@ function renderWatchlistTab(tab) {
 }
 
 function showLoading() { document.getElementById('main-content').innerHTML = '<div class="spinner"></div>'; }
-function renderError()  { document.getElementById('main-content').innerHTML = `<div class="empty-state"><i class="ti ti-alert-triangle"></i><p>Something went wrong. Check your connection.</p></div>`; }
+function renderError()  { document.getElementById('main-content').innerHTML = `<div class="empty-state"><i class="ti ti-alert-triangle"></i><p>Something went wrong.</p></div>`; }
 
+// ─── DETAIL ───────────────────────────────────────────────────────
 async function openDetail(id, type) {
   document.getElementById('app').style.display = 'none';
   const dv = document.getElementById('detail-view');
@@ -1038,7 +1320,7 @@ async function openDetail(id, type) {
   dv.style.minHeight = '100vh';
   dv.innerHTML = '<div class="spinner" style="margin-top:5rem"></div>';
   try {
-    const data = await fetch(`${TMDB}/${type}/${id}?api_key=${API_KEY}&language=en-US&append_to_response=credits`).then(r=>r.json());
+    const data = await fetch(`${TMDB_BASE}/${type}/${id}?api_key=${API_KEY}&language=en-US&append_to_response=credits`).then(r=>r.json());
     renderDetail(data, type);
   } catch(e) {
     dv.innerHTML = `<div class="empty-state"><i class="ti ti-alert-triangle"></i><p>Could not load details.</p></div>`;
@@ -1046,11 +1328,11 @@ async function openDetail(id, type) {
 }
 
 function getAirStatus(data, type) {
-  if (type !== 'tv') return null;
-  const status = (data.status || '').toLowerCase();
-  if (status === 'returning series' || status === 'in production') return 'onair';
-  if (status === 'ended') return 'ended';
-  if (status === 'canceled' || status === 'cancelled') return 'canceled';
+  if (type!=='tv') return null;
+  const s = (data.status||'').toLowerCase();
+  if (s==='returning series'||s==='in production') return 'onair';
+  if (s==='ended') return 'ended';
+  if (s==='canceled'||s==='cancelled') return 'canceled';
   return null;
 }
 
@@ -1067,31 +1349,23 @@ function renderDetail(data, type) {
     ? (data.production_companies||[]).map(p=>p.name).slice(0,2).join(', ')||'—'
     : (data.networks||[]).map(n=>n.name).slice(0,2).join(', ')||'—';
   const state = watchlist[id]?.status || null;
-
-  // Air status badge
   const airStatus = getAirStatus(data, type);
   if (airStatus) airStatusCache[id] = airStatus;
-  const airBadges = {
-    onair:    { label: '● On Air',   cls: 'air-onair'   },
-    ended:    { label: '■ Finished', cls: 'air-ended'   },
-    canceled: { label: '✕ Canceled', cls: 'air-canceled'},
-  };
-  const airBadgeHtml = airStatus
-    ? `<span class="chip air-badge ${airBadges[airStatus].cls}">${airBadges[airStatus].label}</span>`
-    : '';
+
+  const airBadges  = { onair:'● On Air', ended:'■ Finished', canceled:'✕ Canceled' };
+  const airBadgeHtml = airStatus ? `<span class="chip air-badge air-${airStatus}">${airBadges[airStatus]}</span>` : '';
 
   let facts = `
     <div class="fact-card"><div class="fact-label">Year</div><div class="fact-value">${year||'—'}</div></div>
     <div class="fact-card"><div class="fact-label">Genre</div><div class="fact-value">${genres}</div></div>
     <div class="fact-card"><div class="fact-label">${type==='tv'?'Network':'Studio'}</div><div class="fact-value">${studio}</div></div>
-    <div class="fact-card"><div class="fact-label">Cast</div><div class="fact-value">${cast}</div></div>
-  `;
+    <div class="fact-card"><div class="fact-label">Cast</div><div class="fact-value">${cast}</div></div>`;
   if (type==='tv') {
     facts += `<div class="fact-card"><div class="fact-label">Seasons</div><div class="fact-value">${data.number_of_seasons||'—'}</div></div>`;
     facts += `<div class="fact-card"><div class="fact-label">Episodes</div><div class="fact-value">${data.number_of_episodes||'—'}</div></div>`;
     if (airStatus) {
-      const labels = { onair:'On Air', ended:'Finished', canceled:'Canceled' };
-      facts += `<div class="fact-card"><div class="fact-label">Status</div><div class="fact-value air-fact-${airStatus}">${labels[airStatus]}</div></div>`;
+      const al = { onair:'On Air', ended:'Finished', canceled:'Canceled' };
+      facts += `<div class="fact-card"><div class="fact-label">Status</div><div class="fact-value air-fact-${airStatus}">${al[airStatus]}</div></div>`;
     }
   } else {
     facts += `<div class="fact-card"><div class="fact-label">Runtime</div><div class="fact-value">${data.runtime?data.runtime+' min':'—'}</div></div>`;
@@ -1100,17 +1374,17 @@ function renderDetail(data, type) {
 
   dv.innerHTML = `
     <div class="detail-header">
-      ${backdrop ? `<img class="detail-backdrop" src="${backdrop}" alt="">` : '<div class="detail-backdrop-placeholder"></div>'}
+      ${backdrop?`<img class="detail-backdrop" src="${backdrop}" alt="">`:'<div class="detail-backdrop-placeholder"></div>'}
       <div class="detail-gradient"></div>
       <div class="detail-content">
-        ${poster ? `<img class="detail-poster" src="${poster}" alt="${title}">` : `<div class="detail-poster-ph"><i class="ti ti-photo"></i></div>`}
+        ${poster?`<img class="detail-poster" src="${poster}" alt="${title}">`:`<div class="detail-poster-ph"><i class="ti ti-photo"></i></div>`}
         <div class="detail-info">
           <div class="detail-title">${title}</div>
-          ${data.tagline ? `<div class="detail-tagline">${data.tagline}</div>` : ''}
+          ${data.tagline?`<div class="detail-tagline">${data.tagline}</div>`:''}
           <div class="detail-chips">
-            ${year ? `<span class="chip">${year}</span>` : ''}
+            ${year?`<span class="chip">${year}</span>`:''}
             <span class="chip">${type==='tv'?'Series':'Movie'}</span>
-            ${data.vote_average ? `<span class="chip">★ ${Math.round(data.vote_average*10)/10}</span>` : ''}
+            ${data.vote_average?`<span class="chip">★ ${Math.round(data.vote_average*10)/10}</span>`:''}
             ${airBadgeHtml}
           </div>
         </div>
@@ -1125,49 +1399,40 @@ function renderDetail(data, type) {
       </div>
       <div class="detail-desc">${data.overview||'No description available.'}</div>
       <div class="detail-facts">${facts}</div>
-      ${type==='tv' ? '<div id="seasons-section"><div class="spinner"></div></div>' : ''}
+      ${type==='tv'?'<div id="seasons-section"><div class="spinner"></div></div>':''}
     </div>`;
 
   document.getElementById('back-btn').addEventListener('click', closeDetail);
 
   dv.querySelectorAll('.action-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
+    btn.addEventListener('click', async () => {
       const s = btn.dataset.s;
-      const cur = watchlist[id]?.status;
-      if (cur === s) { delete watchlist[id]; }
-      else { watchlist[id] = { status: s, item: data }; }
-      saveWL();
+      await toggleWatchlistDB(id, s, data);
       updateCounts();
       const newState = watchlist[id]?.status || null;
       dv.querySelectorAll('.action-btn').forEach(b => b.classList.remove('active'));
       if (newState) dv.querySelector(`.act-${newState}`)?.classList.add('active');
-      // Mark all released episodes checked when moving to Watched
-      if (newState === 'watched' && type === 'tv') {
-        markAllReleasedInStorage(id);
-        tickAllRenderedEpisodes();
-      }
+      if (newState==='watched' && type==='tv') tickAllRenderedEpisodes();
     });
   });
 
   if (type==='tv' && data.number_of_seasons) loadSeasons(id, data.number_of_seasons);
 }
 
-// Save all rendered released checkboxes to storage (for action button click)
+// ─── EPISODES ─────────────────────────────────────────────────────
 function tickAllRenderedEpisodes() {
   const sec = document.getElementById('seasons-section');
   if (!sec) return;
+  const keys = [];
   sec.querySelectorAll('.ep-released .ep-check').forEach(cb => {
-    cb.checked = true;
-    episodeChecks[cb.dataset.key] = true;
-    cb.closest('.episode-row').classList.add('ep-done');
+    if (!cb.checked) {
+      cb.checked = true;
+      episodeChecks[cb.dataset.key] = true;
+      cb.closest('.episode-row').classList.add('ep-done');
+      keys.push(cb.dataset.key);
+    }
   });
-  saveEP();
-}
-
-// Pre-fill storage for all released episodes of a show (used before DOM is ready)
-function markAllReleasedInStorage(showId) {
-  // We can't know keys without episode data, so we rely on tickAllRenderedEpisodes
-  // for the in-page case. This is a no-op placeholder kept for clarity.
+  if (keys.length) saveAllEpChecks(keys);
 }
 
 async function loadSeasons(showId, count) {
@@ -1178,25 +1443,25 @@ async function loadSeasons(showId, count) {
 
   for (let n = 1; n <= count; n++) {
     try {
-      const s = await fetch(`${TMDB}/tv/${showId}/season/${n}?api_key=${API_KEY}&language=en-US`).then(r=>r.json());
+      const s = await fetch(`${TMDB_BASE}/tv/${showId}/season/${n}?api_key=${API_KEY}&language=en-US`).then(r=>r.json());
       const eps = s.episodes || [];
       const today = new Date(); today.setHours(0,0,0,0);
 
-      // If show is watched, pre-check all released episodes in storage NOW
       if (isWatched()) {
+        const keys = [];
         eps.forEach(ep => {
           if (!ep.air_date) return;
           const air = new Date(ep.air_date); air.setHours(0,0,0,0);
           if (air <= today) {
-            episodeChecks[`${showId}_s${n}_e${ep.episode_number}`] = true;
+            const key = `${showId}_s${n}_e${ep.episode_number}`;
+            if (!episodeChecks[key]) keys.push(key);
           }
         });
-        saveEP();
+        if (keys.length) await saveAllEpChecks(keys);
       }
 
       const block = document.createElement('div');
       block.className = 'season-block';
-
       const rows = eps.map(ep => {
         const key = `${showId}_s${n}_e${ep.episode_number}`;
         const done = !!episodeChecks[key];
@@ -1207,11 +1472,9 @@ async function loadSeasons(showId, count) {
           if (!released) daysLeft = Math.round((air - today) / 86400000);
         }
         const rowClass = ['episode-row', done?'ep-done':'', released?'ep-released':'ep-unreleased'].filter(Boolean).join(' ');
-        let countdown = '';
-        if (!released && daysLeft !== null) {
-          const soon = daysLeft <= 7;
-          countdown = `<span class="ep-countdown${soon?' soon':''}">${daysLeft===0?'Today!':daysLeft===1?'Tomorrow':daysLeft+'d'}</span>`;
-        }
+        const countdown = (!released && daysLeft!==null)
+          ? `<span class="ep-countdown${daysLeft<=7?' soon':''}">${daysLeft===0?'Today!':daysLeft===1?'Tomorrow':daysLeft+'d'}</span>`
+          : '';
         return `<div class="${rowClass}">
           <input type="checkbox" class="ep-check" ${done?'checked':''} ${!released?'disabled':''} data-key="${key}">
           <span class="ep-num">E${ep.episode_number}</span>
@@ -1237,13 +1500,13 @@ async function loadSeasons(showId, count) {
       });
 
       block.querySelectorAll('.ep-check').forEach(cb => {
-        cb.addEventListener('change', function() {
+        cb.addEventListener('change', async function() {
           if (this.disabled) return;
           const key = this.dataset.key;
+          this.closest('.episode-row').classList.toggle('ep-done', this.checked);
+          await saveEpCheck(key, this.checked);
           if (this.checked) episodeChecks[key] = true;
           else delete episodeChecks[key];
-          saveEP();
-          this.closest('.episode-row').classList.toggle('ep-done', this.checked);
           checkAllWatched(showId);
         });
       });
@@ -1258,33 +1521,38 @@ function checkAllWatched(showId) {
   if (!sec) return;
   const allReleased = sec.querySelectorAll('.ep-released .ep-check');
   if (!allReleased.length) return;
-  if (Array.from(allReleased).every(cb => cb.checked) && watchlist[showId]?.status !== 'watched') {
+  if (Array.from(allReleased).every(cb=>cb.checked) && watchlist[showId]?.status!=='watched') {
     _popupShowId = showId;
-    _popupData = watchlist[showId]?.item || { id: showId };
+    _popupData   = watchlist[showId]?.item || { id: showId };
     document.getElementById('watched-popup').style.display = 'flex';
   }
 }
 
-let _popupShowId = null;
-let _popupData = null;
-
-function confirmWatched() {
-  if (_popupShowId === null) return;
-  const id = _popupShowId;
-  watchlist[id] = { status: 'watched', item: _popupData || watchlist[id]?.item || { id } };
-  saveWL();
+async function confirmWatched() {
+  if (_popupShowId===null) return;
+  const id   = _popupShowId;
+  const item = _popupData || watchlist[id]?.item || { id };
+  await toggleWatchlistDB(id, 'watched', item);
+  // Make sure it's set to watched (toggle would remove if already watched)
+  if (!watchlist[id] || watchlist[id].status !== 'watched') {
+    watchlist[id] = { status: 'watched', item };
+    if (currentUser) {
+      await sb.from('watchlist').upsert({
+        user_id: currentUser.id, show_id: id, status: 'watched', item,
+        updated_at: new Date().toISOString()
+      }, { onConflict: 'user_id,show_id' });
+    }
+  }
   updateCounts();
-  document.querySelectorAll('.action-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.action-btn').forEach(b=>b.classList.remove('active'));
   document.querySelector('.act-watched')?.classList.add('active');
-  // Tick any remaining unchecked episodes (shouldn't be any, but just in case)
   tickAllRenderedEpisodes();
   closeWatchedPopup();
 }
 
 function closeWatchedPopup() {
   document.getElementById('watched-popup').style.display = 'none';
-  _popupShowId = null;
-  _popupData = null;
+  _popupShowId = null; _popupData = null;
 }
 
 function closeDetail() {
@@ -1292,19 +1560,5 @@ function closeDetail() {
   document.getElementById('app').style.display = 'flex';
 }
 </script>
-
-<!-- WATCHED COMPLETION POPUP -->
-<div id="watched-popup">
-  <div id="watched-popup-backdrop" onclick="closeWatchedPopup()"></div>
-  <div id="watched-popup-box">
-    <div id="watched-popup-icon">🎉</div>
-    <div id="watched-popup-title">All episodes watched!</div>
-    <div id="watched-popup-desc">You've checked every released episode.<br>Move this show to your <strong>Watched</strong> list?</div>
-    <div id="watched-popup-actions">
-      <button class="wpop-btn wpop-confirm" onclick="confirmWatched()">✓ Move to Watched</button>
-      <button class="wpop-btn wpop-cancel" onclick="closeWatchedPopup()">Not yet</button>
-    </div>
-  </div>
-</div>
 </body>
 </html>
