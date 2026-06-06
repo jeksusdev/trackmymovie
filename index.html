@@ -892,7 +892,6 @@
   </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script>
 // ─── CONFIG ───────────────────────────────────────────────────────
 const SUPABASE_URL  = 'https://qpxaiztckfbcktfzsmmb.supabase.co';
@@ -900,7 +899,74 @@ const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFz
 const TMDB_BASE     = 'https://api.themoviedb.org/3';
 const IMG           = 'https://image.tmdb.org/t/p/';
 
-let sb = null; // init after DOM ready
+// ─── INLINE SUPABASE CLIENT (no external CDN needed) ──────────────
+const sb = (() => {
+  const base = SUPABASE_URL, key = SUPABASE_ANON;
+  const hdrs = (tok) => ({ 'Content-Type':'application/json','apikey':key,...(tok?{'Authorization':`Bearer ${tok}`}:{}) });
+  const SK = 'sb-session';
+  let _s = null;
+  try { _s = JSON.parse(localStorage.getItem(SK)); } catch(e) {}
+  const save = (s) => { _s=s; s ? localStorage.setItem(SK,JSON.stringify(s)) : localStorage.removeItem(SK); };
+
+  // Handle OAuth redirect (token arrives in URL hash)
+  let _oauthPending = false;
+  const hp = new URLSearchParams(location.hash.slice(1));
+  const ht = hp.get('access_token');
+  if (ht) {
+    _oauthPending = true;
+    fetch(`${base}/auth/v1/user`,{headers:hdrs(ht)}).then(r=>r.json()).then(user=>{
+      save({access_token:ht,refresh_token:hp.get('refresh_token')||'',expires_at:Number(hp.get('expires_at')||0),user});
+      history.replaceState(null,'',location.pathname+location.search);
+    }).catch(()=>{}).finally(()=>{ _oauthPending=false; });
+  }
+
+  const auth = {
+    async getSession() {
+      // wait for OAuth user-fetch if mid-redirect
+      if (_oauthPending) await new Promise(r=>{const t=setInterval(()=>{if(!_oauthPending){clearInterval(t);r();}},50);setTimeout(()=>{clearInterval(t);r();},3000);});
+      if (!_s?.access_token) return {data:{session:null}};
+      if (_s.expires_at && Date.now()/1000 > _s.expires_at-60) {
+        try {
+          const d=await fetch(`${base}/auth/v1/token?grant_type=refresh_token`,{method:'POST',headers:hdrs(null),body:JSON.stringify({refresh_token:_s.refresh_token})}).then(r=>r.json());
+          if (d.access_token) { const ns={..._s,...d,user:d.user||_s.user}; save(ns); return {data:{session:ns}}; }
+        } catch(e) {}
+        save(null); return {data:{session:null}};
+      }
+      return {data:{session:_s}};
+    },
+    async signInWithOAuth({provider,options}) {
+      location.href=`${base}/auth/v1/authorize?provider=${provider}&redirect_to=${encodeURIComponent(options?.redirectTo||location.href)}`;
+    },
+    async signOut() {
+      try{await fetch(`${base}/auth/v1/logout`,{method:'POST',headers:hdrs(_s?.access_token)});}catch(e){}
+      save(null);
+    }
+  };
+
+  function from(table) {
+    const tok=()=>_s?.access_token;
+    const url=(q='')=>`${base}/rest/v1/${table}${q}`;
+    return {
+      select(cols='*') {
+        return fetch(url(`?select=${cols}`),{headers:{...hdrs(tok()),'Prefer':'return=representation'}})
+          .then(r=>r.json()).then(d=>({data:Array.isArray(d)?d:[],error:null})).catch(e=>({data:[],error:e}));
+      },
+      async upsert(rows,opts={}) {
+        const body=Array.isArray(rows)?rows:[rows];
+        try{await fetch(url(),{method:'POST',headers:{...hdrs(tok()),'Prefer':'resolution=merge-duplicates,return=minimal'},body:JSON.stringify(body)});}catch(e){}
+      },
+      delete() {
+        const conds=[];
+        const chain={
+          eq(col,val){conds.push(`${col}=eq.${encodeURIComponent(val)}`);return chain;},
+          then(res){return fetch(url(`?${conds.join('&')}`),{method:'DELETE',headers:hdrs(tok())}).then(()=>res({error:null})).catch(e=>res({error:e}));}
+        };
+        return chain;
+      }
+    };
+  }
+  return {auth,from};
+})();
 
 // ─── STATE ────────────────────────────────────────────────────────
 let API_KEY = '';
