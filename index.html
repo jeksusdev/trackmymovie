@@ -892,7 +892,7 @@
   </div>
 </div>
 
-<script src="https://unpkg.com/@supabase/supabase-js@2/dist/umd/supabase.js" defer onload="onSupabaseLoaded()" onerror="onSupabaseFailed()"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script>
 // ─── CONFIG ───────────────────────────────────────────────────────
 const SUPABASE_URL  = 'https://qpxaiztckfbcktfzsmmb.supabase.co';
@@ -1070,36 +1070,38 @@ async function initApp() {
 }
 document.getElementById('api-key-input').addEventListener('keydown', e => { if (e.key === 'Enter') initApp(); });
 
-// On page load — init Supabase, check session
-function onSupabaseFailed() {
-  console.warn('Supabase failed to load — guest mode only');
-  document.getElementById('google-btn').style.display = 'none';
-  document.querySelector('.gate-divider').style.display = 'none';
-}
+// ─── BOOT ON DOM READY ────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', async () => {
+  const savedKey = localStorage.getItem('tmv_tmdb_key');
 
-async function onSupabaseLoaded() {
-  // NOTE: this callback fires after the script's `onload`, at which point
-  // DOMContentLoaded has already fired (the script uses `defer`).
-  // Do NOT wrap in DOMContentLoaded — run immediately.
-  try {
-    sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
-    const { data: { session } } = await sb.auth.getSession();
-    const savedKey = localStorage.getItem('tmv_tmdb_key');
-    if (session?.user) {
-      currentUser = session.user;
-      if (savedKey) {
-        await bootApp(savedKey);
-      } else {
-        showGateForUser(session.user);
+  // Try to init Supabase (synchronous script loaded above)
+  if (typeof supabase !== 'undefined') {
+    try {
+      sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
+      const { data: { session } } = await sb.auth.getSession();
+      if (session?.user) {
+        currentUser = session.user;
+        if (savedKey) {
+          await bootApp(savedKey);
+        } else {
+          showGateForUser(session.user);
+        }
+        return; // done
       }
-    } else if (savedKey) {
-      // Guest returning with a previously saved TMDB key — auto-login
-      await bootApp(savedKey);
+    } catch(err) {
+      console.error('Supabase init error:', err);
     }
-  } catch(err) {
-    console.error('Supabase init error:', err);
+  } else {
+    // Supabase failed to load — hide Google sign-in
+    document.getElementById('google-btn').style.display = 'none';
+    document.querySelector('.gate-divider').style.display = 'none';
   }
-}
+
+  // No logged-in user — check for returning guest
+  if (savedKey) {
+    await bootApp(savedKey);
+  }
+});
 
 function showGateForUser(user) {
   const gate = document.getElementById('auth-gate');
