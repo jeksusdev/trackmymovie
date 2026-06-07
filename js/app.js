@@ -200,15 +200,21 @@ document.addEventListener('DOMContentLoaded', async () => {
   try {
     sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
     const { data: { session } } = await sb.auth.getSession();
-    if (session?.user) {
-      currentUser = session.user;
-      const savedKey = localStorage.getItem('tmv_tmdb_key');
-      if (savedKey) {
-        await bootApp(savedKey);
-      } else {
-        showGateForUser(session.user);
-      }
-    }
+
+if (session?.user) {
+  currentUser = session.user;
+
+  const savedKey = localStorage.getItem('tmv_tmdb_key');
+
+  if (savedKey) {
+    await bootApp(savedKey);
+  } else {
+    showGateForUser(session.user);
+  }
+} else {
+  document.getElementById('auth-gate')
+    .style.setProperty('display', 'flex', 'important');
+}
   } catch(err) {
     console.error('Supabase init error:', err);
   }
