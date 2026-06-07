@@ -1,14 +1,13 @@
-
 // ─── CONFIG ───────────────────────────────────────────────────────
 const SUPABASE_URL  = 'https://qpxaiztckfbcktfzsmmb.supabase.co';
 const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFweGFpenRja2ZiY2t0ZnpzbW1iIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA3NTg3NDUsImV4cCI6MjA5NjMzNDc0NX0.5kZ-owTKhGaGdawpDfWW0lIFUafsYMOqcNMSwtZk8Wo';
 const TMDB_BASE     = 'https://api.themoviedb.org/3';
 const IMG           = 'https://image.tmdb.org/t/p/';
+const TMDB_KEY      = '56d22eebdc0c16e4f800875507458997';
 
-let sb = null; // init after DOM ready
+let sb = null;
 
 // ─── STATE ────────────────────────────────────────────────────────
-let API_KEY = '';
 let currentUser = null;
 let currentTab  = 'discover';
 let searchTimer = null;
@@ -116,8 +115,8 @@ async function saveAllEpChecks(keys) {
 async function loadGenres() {
   try {
     const [mv, tv] = await Promise.all([
-      fetch(`${TMDB_BASE}/genre/movie/list?api_key=${API_KEY}&language=en-US`).then(r=>r.json()),
-      fetch(`${TMDB_BASE}/genre/tv/list?api_key=${API_KEY}&language=en-US`).then(r=>r.json())
+      fetch(`${TMDB_BASE}/genre/movie/list?api_key=${TMDB_KEY}&language=en-US`).then(r=>r.json()),
+      fetch(`${TMDB_BASE}/genre/tv/list?api_key=${TMDB_KEY}&language=en-US`).then(r=>r.json())
     ]);
     [...(mv.genres||[]), ...(tv.genres||[])].forEach(g => { genreMap[g.id] = g.name; });
   } catch(e) {}
@@ -130,15 +129,14 @@ async function prefetchAirStatus() {
     .map(i => i.id);
   await Promise.allSettled(tvIds.map(async id => {
     try {
-      const d = await fetch(`${TMDB_BASE}/tv/${id}?api_key=${API_KEY}&language=en-US`).then(r=>r.json());
+      const d = await fetch(`${TMDB_BASE}/tv/${id}?api_key=${TMDB_KEY}&language=en-US`).then(r=>r.json());
       const s = getAirStatus(d, 'tv');
       if (s) airStatusCache[id] = s;
     } catch(e) {}
   }));
 }
 
-async function bootApp(key) {
-  API_KEY = key;
+async function bootApp() {
   await loadGenres();
   await loadWatchlist();
   await loadEpisodeChecks();
@@ -154,28 +152,54 @@ async function bootApp(key) {
   loadDiscover();
 }
 
-// Called by guest "Continue" button
-async function initApp() {
-  const key = document.getElementById('api-key-input').value.trim();
-  if (!key) return;
-  const btn = document.getElementById('gate-btn');
-  btn.textContent = 'Verifying…';
-  btn.disabled = true;
-  document.getElementById('gate-error').style.display = 'none';
-  try {
-    const r = await fetch(`${TMDB_BASE}/trending/movie/week?api_key=${key}&language=en-US`);
-    if (!r.ok) throw new Error('bad key');
-    localStorage.setItem('tmv_tmdb_key', key);
-    await bootApp(key);
-  } catch(e) {
-    document.getElementById('gate-error').style.display = 'block';
-    btn.textContent = 'Continue as guest →';
-    btn.disabled = false;
-  }
-}
-document.getElementById('api-key-input').addEventListener('keydown', e => { if (e.key === 'Enter') initApp(); });
-
+// ─── SUPABASE INIT ────────────────────────────────────────────────
 // On page load — init Supabase, check session
+document.addEventListener('DOMContentLoaded', async () => {
+  const getSB = () => new Promise(resolve => {
+    if (typeof supabase !== 'undefined') return resolve(true);
+    let waited = 0;
+    const interval = setInterval(() => {
+      waited += 50;
+      if (typeof supabase !== 'undefined') { clearInterval(interval); resolve(true); }
+      else if (waited >= 5000) { clearInterval(interval); resolve(false); }
+    }, 50);
+  });
+
+  const loaded = await getSB();
+  if (!loaded) {
+    console.warn('Supabase not loaded');
+    return;
+  }
+
+  try {
+    sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
+
+    // Handle OAuth redirect and any auth state changes
+    sb.auth.onAuthStateChange(async (event, session) => {
+      if (event === 'SIGNED_IN' && session?.user && !currentUser) {
+        currentUser = session.user;
+        await bootApp();
+      }
+      if (event === 'SIGNED_OUT') {
+        currentUser = null;
+        watchlist = {};
+        episodeChecks = {};
+        document.getElementById('app').style.setProperty('display', 'none', 'important');
+        document.getElementById('detail-view').style.display = 'none';
+        document.getElementById('auth-gate').style.setProperty('display', 'flex', 'important');
+      }
+    });
+
+    // Check existing session (page refresh)
+    const { data: { session } } = await sb.auth.getSession();
+    if (session?.user) {
+      currentUser = session.user;
+      await bootApp();
+    }
+  } catch(err) {
+    console.error('Supabase init error:', err);
+  }
+});
 document.addEventListener('DOMContentLoaded', async () => {
   // Poll for supabase — it loads async so may arrive after DOMContentLoaded
   const getSB = () => new Promise(resolve => {
@@ -200,16 +224,11 @@ document.addEventListener('DOMContentLoaded', async () => {
   try {
     sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
 
-    // Listen for auth state changes — handles OAuth redirect for any account
+    // Handle OAuth redirect and any auth state changes
     sb.auth.onAuthStateChange(async (event, session) => {
       if (event === 'SIGNED_IN' && session?.user && !currentUser) {
         currentUser = session.user;
-        const savedKey = localStorage.getItem('tmv_tmdb_key');
-        if (savedKey) {
-          await bootApp(savedKey);
-        } else {
-          showGateForUser(session.user);
-        }
+        await bootApp();
       }
       if (event === 'SIGNED_OUT') {
         currentUser = null;
@@ -221,38 +240,16 @@ document.addEventListener('DOMContentLoaded', async () => {
       }
     });
 
+    // Check existing session (page refresh)
     const { data: { session } } = await sb.auth.getSession();
-
-if (session?.user) {
-  currentUser = session.user;
-
-  const savedKey = localStorage.getItem('tmv_tmdb_key');
-
-  if (savedKey) {
-    await bootApp(savedKey);
-  } else {
-    showGateForUser(session.user);
-  }
-} else {
-  document.getElementById('auth-gate')
-    .style.setProperty('display', 'flex', 'important');
-}
+    if (session?.user) {
+      currentUser = session.user;
+      await bootApp();
+    }
   } catch(err) {
     console.error('Supabase init error:', err);
   }
 });
-
-function showGateForUser(user) {
-  const gate = document.getElementById('auth-gate');
-  gate.style.display = 'flex';
-  // Replace google button with welcome + ask for TMDB key
-  document.getElementById('google-btn').style.display = 'none';
-  document.querySelector('.gate-divider').style.display = 'none';
-  const label = document.createElement('div');
-  label.style.cssText = 'color:#34c87a;font-size:14px;margin-bottom:16px;display:flex;align-items:center;gap:8px;justify-content:center';
-  label.innerHTML = `✓ Signed in as <strong>${user.email}</strong>`;
-  document.querySelector('.gate-box').prepend(label);
-}
 
 // ─── USER AREA IN HEADER ──────────────────────────────────────────
 function renderUserArea() {
@@ -320,7 +317,7 @@ async function doSearch(q) {
   const lang = tmdbLang(q);
   showLoading();
   try {
-    const r = await fetch(`${TMDB_BASE}/search/multi?api_key=${API_KEY}&language=${lang}&query=${encodeURIComponent(q)}&include_adult=false`);
+    const r = await fetch(`${TMDB_BASE}/search/multi?api_key=${TMDB_KEY}&language=${lang}&query=${encodeURIComponent(q)}&include_adult=false`);
     const d = await r.json();
     const results = (d.results||[]).filter(x => x.media_type==='movie'||x.media_type==='tv');
     renderGrid(results, `Results for "${q}"`);
@@ -332,8 +329,8 @@ async function loadDiscover() {
   showLoading();
   try {
     const [tr, tv] = await Promise.all([
-      fetch(`${TMDB_BASE}/trending/all/week?api_key=${API_KEY}&language=en-US`).then(r=>r.json()),
-      fetch(`${TMDB_BASE}/tv/top_rated?api_key=${API_KEY}&language=en-US`).then(r=>r.json())
+      fetch(`${TMDB_BASE}/trending/all/week?api_key=${TMDB_KEY}&language=en-US`).then(r=>r.json()),
+      fetch(`${TMDB_BASE}/tv/top_rated?api_key=${TMDB_KEY}&language=en-US`).then(r=>r.json())
     ]);
     const c = document.getElementById('main-content');
     c.innerHTML = `
@@ -470,7 +467,7 @@ async function openDetail(id, type) {
   dv.style.minHeight = '100vh';
   dv.innerHTML = '<div class="spinner" style="margin-top:5rem"></div>';
   try {
-    const data = await fetch(`${TMDB_BASE}/${type}/${id}?api_key=${API_KEY}&language=en-US&append_to_response=credits`).then(r=>r.json());
+    const data = await fetch(`${TMDB_BASE}/${type}/${id}?api_key=${TMDB_KEY}&language=en-US&append_to_response=credits`).then(r=>r.json());
     renderDetail(data, type);
   } catch(e) {
     dv.innerHTML = `<div class="empty-state">⚠<p>Could not load details.</p></div>`;
@@ -593,7 +590,7 @@ async function loadSeasons(showId, count) {
 
   for (let n = 1; n <= count; n++) {
     try {
-      const s = await fetch(`${TMDB_BASE}/tv/${showId}/season/${n}?api_key=${API_KEY}&language=en-US`).then(r=>r.json());
+      const s = await fetch(`${TMDB_BASE}/tv/${showId}/season/${n}?api_key=${TMDB_KEY}&language=en-US`).then(r=>r.json());
       const eps = s.episodes || [];
       const today = new Date(); today.setHours(0,0,0,0);
 
