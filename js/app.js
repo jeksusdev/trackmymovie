@@ -200,57 +200,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     console.error('Supabase init error:', err);
   }
 });
-document.addEventListener('DOMContentLoaded', async () => {
-  // Poll for supabase — it loads async so may arrive after DOMContentLoaded
-  const getSB = () => new Promise(resolve => {
-    if (typeof supabase !== 'undefined') return resolve(true);
-    let waited = 0;
-    const interval = setInterval(() => {
-      waited += 50;
-      if (typeof supabase !== 'undefined') { clearInterval(interval); resolve(true); }
-      else if (waited >= 5000) { clearInterval(interval); resolve(false); }
-    }, 50);
-  });
-
-  const loaded = await getSB();
-
-  if (!loaded) {
-    console.warn('Supabase not loaded — guest mode only');
-    document.getElementById('google-btn').style.display = 'none';
-    document.querySelector('.gate-divider').style.display = 'none';
-    return;
-  }
-
-  try {
-    sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
-
-    // Handle OAuth redirect and any auth state changes
-    sb.auth.onAuthStateChange(async (event, session) => {
-      if (event === 'SIGNED_IN' && session?.user && !currentUser) {
-        currentUser = session.user;
-        await bootApp();
-      }
-      if (event === 'SIGNED_OUT') {
-        currentUser = null;
-        watchlist = {};
-        episodeChecks = {};
-        document.getElementById('app').style.setProperty('display', 'none', 'important');
-        document.getElementById('detail-view').style.display = 'none';
-        document.getElementById('auth-gate').style.setProperty('display', 'flex', 'important');
-      }
-    });
-
-    // Check existing session (page refresh)
-    const { data: { session } } = await sb.auth.getSession();
-    if (session?.user) {
-      currentUser = session.user;
-      await bootApp();
-    }
-  } catch(err) {
-    console.error('Supabase init error:', err);
-  }
-});
-
 // ─── USER AREA IN HEADER ──────────────────────────────────────────
 function renderUserArea() {
   const area = document.getElementById('user-area');
