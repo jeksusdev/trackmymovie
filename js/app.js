@@ -685,5 +685,5 @@ function closeWatchedPopup() {
 
 function closeDetail() {
   document.getElementById('detail-view').style.display = 'none';
-  document.getElementById('app').style.display = 'flex';
+  document.getElementById('app').style.setProperty('display', 'flex', 'important');
 }
