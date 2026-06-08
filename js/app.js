@@ -192,26 +192,27 @@ document.addEventListener('DOMContentLoaded', async () => {
       }
     });
 
-    // Hide auth-gate until we know session state — prevents flash on refresh
-    document.getElementById('auth-gate').style.setProperty('display', 'none', 'important');
+    // Wait for Supabase to process session (from localStorage or URL hash)
+    let session = null;
+    for (let i = 0; i < 20; i++) {
+      const { data } = await sb.auth.getSession();
+      if (data?.session?.user) {
+        session = data.session;
+        break;
+      }
+      await new Promise(r => setTimeout(r, 200));
+    }
 
-    // onAuthStateChange handles ALL cases:
-    // - INITIAL_SESSION: fires on page load if session exists in localStorage
-    // - SIGNED_IN: fires after OAuth redirect
-    // - SIGNED_OUT: fires after signOut()
+    if (session?.user) {
+      currentUser = session.user;
+      await bootApp();
+    } else {
+      // No session — show login
+      document.getElementById('auth-gate').style.setProperty('display', 'flex', 'important');
+    }
+
+    // Listen for sign out
     sb.auth.onAuthStateChange(async (event, session) => {
-      console.log('Auth event:', event, session?.user?.email);
-
-      if ((event === 'SIGNED_IN' || event === 'INITIAL_SESSION') && session?.user && !currentUser) {
-        currentUser = session.user;
-        await bootApp();
-      }
-
-      // Show gate only when explicitly signed out or no session on initial load
-      if (event === 'INITIAL_SESSION' && !session) {
-        document.getElementById('auth-gate').style.setProperty('display', 'flex', 'important');
-      }
-
       if (event === 'SIGNED_OUT') {
         currentUser = null;
         watchlist = {};
