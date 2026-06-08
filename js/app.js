@@ -195,6 +195,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.getElementById('auth-gate').style.setProperty('display', 'none', 'important');
     document.getElementById('loading-screen').style.setProperty('display', 'flex', 'important');
 
+    // On staging — skip auth, boot directly as guest
+    const isStaging = window.location.hostname.includes('staging');
+    if (isStaging) {
+      document.getElementById('loading-screen').style.setProperty('display', 'none', 'important');
+      await bootApp();
+      return;
+    }
+
     // Wait for Supabase to process session (from localStorage or URL hash)
     let session = null;
     for (let i = 0; i < 20; i++) {
