@@ -21,10 +21,14 @@ let _popupData   = null;
 // ─── SUPABASE AUTH ────────────────────────────────────────────────
 async function signInGoogle() {
   if (!sb) return;
-  const cleanUrl = window.location.origin + window.location.pathname;
+  // Clean URL without any hash
+  const cleanUrl = window.location.origin + window.location.pathname.replace(/\/$/, '') + '/';
   await sb.auth.signInWithOAuth({
     provider: 'google',
-    options: { redirectTo: cleanUrl }
+    options: {
+      redirectTo: cleanUrl,
+      scopes: 'email profile'
+    }
   });
 }
 
@@ -138,6 +142,11 @@ async function prefetchAirStatus() {
 }
 
 async function bootApp() {
+  // Clean up OAuth hash from URL
+  if (window.location.hash.includes('access_token')) {
+    history.replaceState(null, '', window.location.pathname);
+  }
+
   await loadGenres();
   await loadWatchlist();
   await loadEpisodeChecks();
@@ -177,9 +186,11 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // Handle OAuth redirect and any auth state changes
     sb.auth.onAuthStateChange(async (event, session) => {
-      if ((event === 'SIGNED_IN' || event === 'INITIAL_SESSION') && session?.user && !currentUser) {
-        currentUser = session.user;
-        await bootApp();
+      if ((event === 'SIGNED_IN' || event === 'INITIAL_SESSION') && session?.user) {
+        if (!currentUser) {
+          currentUser = session.user;
+          await bootApp();
+        }
       }
       if (event === 'SIGNED_OUT') {
         currentUser = null;
@@ -191,13 +202,11 @@ document.addEventListener('DOMContentLoaded', async () => {
       }
     });
 
-    // Check existing session (page refresh) — only if no hash token in URL
-    if (!window.location.hash.includes('access_token')) {
-      const { data: { session } } = await sb.auth.getSession();
-      if (session?.user) {
-        currentUser = session.user;
-        await bootApp();
-      }
+    // Always check session — Supabase stores it in localStorage automatically
+    const { data: { session } } = await sb.auth.getSession();
+    if (session?.user && !currentUser) {
+      currentUser = session.user;
+      await bootApp();
     }
   } catch(err) {
     console.error('Supabase init error:', err);
