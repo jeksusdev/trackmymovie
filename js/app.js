@@ -192,6 +192,9 @@ document.addEventListener('DOMContentLoaded', async () => {
       }
     });
 
+    // Hide auth-gate until we know session state — prevents flash on refresh
+    document.getElementById('auth-gate').style.setProperty('display', 'none', 'important');
+
     // onAuthStateChange handles ALL cases:
     // - INITIAL_SESSION: fires on page load if session exists in localStorage
     // - SIGNED_IN: fires after OAuth redirect
@@ -202,6 +205,11 @@ document.addEventListener('DOMContentLoaded', async () => {
       if ((event === 'SIGNED_IN' || event === 'INITIAL_SESSION') && session?.user && !currentUser) {
         currentUser = session.user;
         await bootApp();
+      }
+
+      // Show gate only when explicitly signed out or no session on initial load
+      if (event === 'INITIAL_SESSION' && !session) {
+        document.getElementById('auth-gate').style.setProperty('display', 'flex', 'important');
       }
 
       if (event === 'SIGNED_OUT') {
