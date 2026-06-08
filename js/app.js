@@ -21,12 +21,11 @@ let _popupData   = null;
 // ─── SUPABASE AUTH ────────────────────────────────────────────────
 async function signInGoogle() {
   if (!sb) return;
-  // Clean URL without any hash
-  const cleanUrl = window.location.origin + window.location.pathname.replace(/\/$/, '') + '/';
+  const redirectTo = window.location.origin;
   await sb.auth.signInWithOAuth({
     provider: 'google',
     options: {
-      redirectTo: cleanUrl,
+      redirectTo,
       scopes: 'email profile'
     }
   });
@@ -192,6 +191,10 @@ document.addEventListener('DOMContentLoaded', async () => {
       }
     });
 
+    // Show loading spinner while checking session — prevents flash of login screen
+    document.getElementById('auth-gate').style.setProperty('display', 'none', 'important');
+    document.getElementById('loading-screen').style.setProperty('display', 'flex', 'important');
+
     // Wait for Supabase to process session (from localStorage or URL hash)
     let session = null;
     for (let i = 0; i < 20; i++) {
@@ -203,11 +206,12 @@ document.addEventListener('DOMContentLoaded', async () => {
       await new Promise(r => setTimeout(r, 200));
     }
 
+    document.getElementById('loading-screen').style.setProperty('display', 'none', 'important');
+
     if (session?.user) {
       currentUser = session.user;
       await bootApp();
     } else {
-      // No session — show login
       document.getElementById('auth-gate').style.setProperty('display', 'flex', 'important');
     }
 
