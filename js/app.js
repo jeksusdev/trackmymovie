@@ -21,9 +21,10 @@ let _popupData   = null;
 // ─── SUPABASE AUTH ────────────────────────────────────────────────
 async function signInGoogle() {
   if (!sb) return;
+  const cleanUrl = window.location.origin + window.location.pathname;
   await sb.auth.signInWithOAuth({
     provider: 'google',
-    options: { redirectTo: window.location.href }
+    options: { redirectTo: cleanUrl }
   });
 }
 
@@ -176,7 +177,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // Handle OAuth redirect and any auth state changes
     sb.auth.onAuthStateChange(async (event, session) => {
-      if (event === 'SIGNED_IN' && session?.user && !currentUser) {
+      if ((event === 'SIGNED_IN' || event === 'INITIAL_SESSION') && session?.user && !currentUser) {
         currentUser = session.user;
         await bootApp();
       }
@@ -190,11 +191,13 @@ document.addEventListener('DOMContentLoaded', async () => {
       }
     });
 
-    // Check existing session (page refresh)
-    const { data: { session } } = await sb.auth.getSession();
-    if (session?.user) {
-      currentUser = session.user;
-      await bootApp();
+    // Check existing session (page refresh) — only if no hash token in URL
+    if (!window.location.hash.includes('access_token')) {
+      const { data: { session } } = await sb.auth.getSession();
+      if (session?.user) {
+        currentUser = session.user;
+        await bootApp();
+      }
     }
   } catch(err) {
     console.error('Supabase init error:', err);
