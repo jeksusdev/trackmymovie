@@ -182,16 +182,28 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
   try {
-    sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
-
-    // Handle OAuth redirect and any auth state changes
-    sb.auth.onAuthStateChange(async (event, session) => {
-      if ((event === 'SIGNED_IN' || event === 'INITIAL_SESSION') && session?.user) {
-        if (!currentUser) {
-          currentUser = session.user;
-          await bootApp();
-        }
+    sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON, {
+      auth: {
+        persistSession: true,
+        storageKey: 'tmv-auth',
+        storage: window.localStorage,
+        autoRefreshToken: true,
+        detectSessionInUrl: true,
       }
+    });
+
+    // onAuthStateChange handles ALL cases:
+    // - INITIAL_SESSION: fires on page load if session exists in localStorage
+    // - SIGNED_IN: fires after OAuth redirect
+    // - SIGNED_OUT: fires after signOut()
+    sb.auth.onAuthStateChange(async (event, session) => {
+      console.log('Auth event:', event, session?.user?.email);
+
+      if ((event === 'SIGNED_IN' || event === 'INITIAL_SESSION') && session?.user && !currentUser) {
+        currentUser = session.user;
+        await bootApp();
+      }
+
       if (event === 'SIGNED_OUT') {
         currentUser = null;
         watchlist = {};
@@ -201,13 +213,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         document.getElementById('auth-gate').style.setProperty('display', 'flex', 'important');
       }
     });
-
-    // Always check session — Supabase stores it in localStorage automatically
-    const { data: { session } } = await sb.auth.getSession();
-    if (session?.user && !currentUser) {
-      currentUser = session.user;
-      await bootApp();
-    }
   } catch(err) {
     console.error('Supabase init error:', err);
   }
