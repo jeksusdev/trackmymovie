@@ -114,6 +114,7 @@ async function saveEpCheck(key, checked) {
 }
 
 async function saveAllEpChecks(keys) {
+  if (!keys.length) return;
   if (currentUser) {
     const rows = keys.map(key => ({ user_id: currentUser.id, key, updated_at: new Date().toISOString() }));
     await sb.from('episode_checks').upsert(rows, { onConflict: 'user_id,key' });
@@ -122,6 +123,17 @@ async function saveAllEpChecks(keys) {
     keys.forEach(k => { episodeChecks[k] = true; });
     try { localStorage.setItem('tmv_ep', JSON.stringify(episodeChecks)); } catch(e) {}
   }
+}
+
+async function removeAllEpChecks(keys) {
+  if (!keys.length) return;
+  if (currentUser) {
+    await sb.from('episode_checks').delete().eq('user_id', currentUser.id).in('key', keys);
+  } else {
+    keys.forEach(key => { delete episodeChecks[key]; });
+    try { localStorage.setItem('tmv_ep', JSON.stringify(episodeChecks)); } catch(e) {}
+  }
+  keys.forEach(key => { delete episodeChecks[key]; });
 }
 
 // ─── INIT ─────────────────────────────────────────────────────────
@@ -588,11 +600,22 @@ function tickAllRenderedEpisodes() {
     }
   });
   if (keys.length) saveAllEpChecks(keys);
+  sec.querySelectorAll('.season-block').forEach(syncSeasonBulkButton);
+}
+
+function syncSeasonBulkButton(block) {
+  const bulkBtn = block.querySelector('.season-bulk-btn');
+  if (!bulkBtn) return;
+  const releasedChecks = Array.from(block.querySelectorAll('.ep-released .ep-check'));
+  const allDone = releasedChecks.length > 0 && releasedChecks.every(cb => cb.checked);
+  bulkBtn.textContent = allDone ? 'Clear watched' : 'Mark released watched';
+  bulkBtn.classList.toggle('all-done', allDone);
 }
 
 async function loadSeasons(showId, count, allowWatchedSuggestion) {
   const sec = document.getElementById('seasons-section');
   if (!sec) return;
+  sec.dataset.seasonsLoaded = 'false';
   sec.innerHTML = '<div class="seasons-title">Seasons &amp; Episodes</div>';
   const isWatched = () => watchlist[showId]?.status === 'watched';
 
@@ -642,16 +665,43 @@ async function loadSeasons(showId, count, allowWatchedSuggestion) {
       block.innerHTML = `
         <div class="season-header">
           <span class="season-name">Season ${n}${s.name&&s.name!==`Season ${n}`?' — '+s.name:''}</span>
-          <div style="display:flex;align-items:center;gap:8px">
+          <div class="season-header-actions">
+            <button class="season-bulk-btn" type="button"></button>
             <span class="season-ep-count">${eps.length} ep</span>
-            ▾
+            <span class="season-chevron">▾</span>
           </div>
         </div>
         <div class="episodes-list">${rows}</div>`;
 
+      const bulkBtn = block.querySelector('.season-bulk-btn');
+      const releasedChecks = Array.from(block.querySelectorAll('.ep-released .ep-check'));
+
+      if (!releasedChecks.length) bulkBtn.remove();
+      else syncSeasonBulkButton(block);
+
       block.querySelector('.season-header').addEventListener('click', function() {
         this.classList.toggle('open');
         this.nextElementSibling.classList.toggle('open');
+      });
+
+      bulkBtn?.addEventListener('click', async e => {
+        e.stopPropagation();
+        bulkBtn.disabled = true;
+        const shouldClear = releasedChecks.every(cb => cb.checked);
+        const changedChecks = releasedChecks.filter(cb => cb.checked === shouldClear);
+        const keys = changedChecks.map(cb => cb.dataset.key);
+
+        changedChecks.forEach(cb => {
+          cb.checked = !shouldClear;
+          cb.closest('.episode-row').classList.toggle('ep-done', !shouldClear);
+        });
+
+        if (shouldClear) await removeAllEpChecks(keys);
+        else await saveAllEpChecks(keys);
+
+        syncSeasonBulkButton(block);
+        bulkBtn.disabled = false;
+        if (!shouldClear) checkAllWatched(showId, allowWatchedSuggestion);
       });
 
       block.querySelectorAll('.ep-check').forEach(cb => {
@@ -662,6 +712,7 @@ async function loadSeasons(showId, count, allowWatchedSuggestion) {
           await saveEpCheck(key, this.checked);
           if (this.checked) episodeChecks[key] = true;
           else delete episodeChecks[key];
+          syncSeasonBulkButton(block);
           checkAllWatched(showId, allowWatchedSuggestion);
         });
       });
@@ -669,12 +720,13 @@ async function loadSeasons(showId, count, allowWatchedSuggestion) {
       sec.appendChild(block);
     } catch(e) {}
   }
+  sec.dataset.seasonsLoaded = 'true';
 }
 
 function checkAllWatched(showId, allowWatchedSuggestion) {
   if (!allowWatchedSuggestion) return;
   const sec = document.getElementById('seasons-section');
-  if (!sec) return;
+  if (!sec || sec.dataset.seasonsLoaded !== 'true') return;
   const allReleased = sec.querySelectorAll('.ep-released .ep-check');
   if (!allReleased.length) return;
   if (Array.from(allReleased).every(cb=>cb.checked) && watchlist[showId]?.status!=='watched') {

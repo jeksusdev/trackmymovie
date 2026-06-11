@@ -746,6 +746,24 @@
   .season-header:hover { border-color: var(--border2); }
   .season-header.open { border-radius: var(--r) var(--r) 0 0; border-bottom-color: transparent; }
   .season-name { font-weight: 700; font-size: 14px; color: #e8e5f8; }
+  .season-header-actions { display: flex; align-items: center; gap: 8px; }
+  .season-bulk-btn {
+    border: 1px solid var(--border2);
+    border-radius: 50px;
+    background: var(--surface2);
+    color: var(--accent2);
+    padding: 4px 9px;
+    font-family: var(--font-body);
+    font-size: 10px;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: border-color 0.2s, background 0.2s, color 0.2s, opacity 0.2s;
+  }
+  .season-bulk-btn:hover { border-color: var(--accent); background: var(--accent-bg); }
+  .season-bulk-btn.all-done { color: var(--success); }
+  .season-bulk-btn.all-done:hover { border-color: var(--success); background: var(--success-bg); }
+  .season-bulk-btn:disabled { cursor: wait; opacity: 0.5; }
   .season-ep-count { font-size: 12px; color: #7e7a97; font-weight: 500; }
   .season-chevron { color: #7e7a97; font-size: 14px; transition: transform 0.2s; }
   .season-header.open .season-chevron { transform: rotate(180deg); }
@@ -815,6 +833,12 @@
   }
 
   .ep-done .ep-title { color: var(--text3); text-decoration: line-through; text-decoration-color: var(--text3); opacity: 0.6; }
+
+  @media (max-width: 560px) {
+    .season-header { align-items: flex-start; gap: 10px; }
+    .season-header-actions { flex-wrap: wrap; justify-content: flex-end; }
+    .season-bulk-btn { order: 3; }
+  }
 
   ::-webkit-scrollbar { width: 5px; }
   ::-webkit-scrollbar-track { background: transparent; }
