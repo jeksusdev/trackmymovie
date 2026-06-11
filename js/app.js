@@ -888,3 +888,11 @@ function closeDetail() {
   document.getElementById('detail-view').style.display = 'none';
   document.getElementById('app').style.setProperty('display', 'flex', 'important');
 }
+
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js').catch(error => {
+      console.warn('Service worker registration failed:', error);
+    });
+  });
+}

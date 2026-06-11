@@ -284,7 +284,7 @@
   .user-menu-btn:hover { background: var(--surface2); color: var(--danger); }
 
   /* MAIN APP */
-  #app { display: none !important; flex-direction: column; min-height: 100vh; }
+  #app { display: none !important; flex-direction: column; min-height: 100vh; min-height: 100dvh; }
 
   /* HEADER */
   header {
@@ -656,6 +656,7 @@
     display: none;
     flex-direction: column;
     min-height: 100vh;
+    min-height: 100dvh;
   }
   .detail-header {
     position: relative;
@@ -1060,7 +1061,7 @@
     header {
       height: auto;
       min-height: 58px;
-      padding: 10px 12px;
+      padding: calc(10px + env(safe-area-inset-top)) max(12px, env(safe-area-inset-right)) 10px max(12px, env(safe-area-inset-left));
       display: grid;
       grid-template-columns: minmax(0, 1fr) auto;
       gap: 9px 12px;
@@ -1075,6 +1076,7 @@
     main { padding: 1rem 12px; }
     .tmdb-attribution { align-items: flex-start; padding-left: 12px; padding-right: 12px; }
     .detail-attribution { padding-left: 0; padding-right: 0; }
+    .detail-header { padding-top: env(safe-area-inset-top); }
   }
 
   ::-webkit-scrollbar { width: 5px; }
