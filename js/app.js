@@ -194,6 +194,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   const loaded = await getSB();
   if (!loaded) {
     console.warn('Supabase not loaded');
+    setDisplay('loading-screen', 'none');
+    setDisplay('auth-gate', 'flex');
     return;
   }
 
@@ -223,12 +225,11 @@ document.addEventListener('DOMContentLoaded', async () => {
       await new Promise(r => setTimeout(r, 200));
     }
 
-    setDisplay('loading-screen', 'none');
-
     if (session?.user) {
       currentUser = session.user;
       await bootApp();
     } else {
+      setDisplay('loading-screen', 'none');
       setDisplay('auth-gate', 'flex');
     }
 
@@ -245,6 +246,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   } catch(err) {
     console.error('Supabase init error:', err);
+    setDisplay('loading-screen', 'none');
+    setDisplay('auth-gate', 'flex');
   }
 });
 // ─── USER AREA IN HEADER ──────────────────────────────────────────
