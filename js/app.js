@@ -484,6 +484,11 @@ function getAirStatus(data, type) {
   return null;
 }
 
+function canSuggestWatched(data, type) {
+  const airStatus = getAirStatus(data, type);
+  return (airStatus === 'ended' || airStatus === 'canceled') && !data.next_episode_to_air;
+}
+
 function renderDetail(data, type) {
   const dv    = document.getElementById('detail-view');
   const id    = data.id;
@@ -564,7 +569,9 @@ function renderDetail(data, type) {
     });
   });
 
-  if (type==='tv' && data.number_of_seasons) loadSeasons(id, data.number_of_seasons);
+  if (type==='tv' && data.number_of_seasons) {
+    loadSeasons(id, data.number_of_seasons, canSuggestWatched(data, type));
+  }
 }
 
 // ─── EPISODES ─────────────────────────────────────────────────────
@@ -583,7 +590,7 @@ function tickAllRenderedEpisodes() {
   if (keys.length) saveAllEpChecks(keys);
 }
 
-async function loadSeasons(showId, count) {
+async function loadSeasons(showId, count, allowWatchedSuggestion) {
   const sec = document.getElementById('seasons-section');
   if (!sec) return;
   sec.innerHTML = '<div class="seasons-title">Seasons &amp; Episodes</div>';
@@ -655,7 +662,7 @@ async function loadSeasons(showId, count) {
           await saveEpCheck(key, this.checked);
           if (this.checked) episodeChecks[key] = true;
           else delete episodeChecks[key];
-          checkAllWatched(showId);
+          checkAllWatched(showId, allowWatchedSuggestion);
         });
       });
 
@@ -664,7 +671,8 @@ async function loadSeasons(showId, count) {
   }
 }
 
-function checkAllWatched(showId) {
+function checkAllWatched(showId, allowWatchedSuggestion) {
+  if (!allowWatchedSuggestion) return;
   const sec = document.getElementById('seasons-section');
   if (!sec) return;
   const allReleased = sec.querySelectorAll('.ep-released .ep-check');
