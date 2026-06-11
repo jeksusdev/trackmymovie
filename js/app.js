@@ -666,12 +666,17 @@ async function loadSeasons(showId, count, allowWatchedSuggestion) {
         <div class="season-header">
           <span class="season-name">Season ${n}${s.name&&s.name!==`Season ${n}`?' — '+s.name:''}</span>
           <div class="season-header-actions">
-            <button class="season-bulk-btn" type="button"></button>
             <span class="season-ep-count">${eps.length} ep</span>
             <span class="season-chevron">▾</span>
           </div>
         </div>
-        <div class="episodes-list">${rows}</div>`;
+        <div class="episodes-list">
+          <div class="season-bulk-bar">
+            <span class="season-bulk-label">Released episodes</span>
+            <button class="season-bulk-btn" type="button"></button>
+          </div>
+          ${rows}
+        </div>`;
 
       const bulkBtn = block.querySelector('.season-bulk-btn');
       const releasedChecks = Array.from(block.querySelectorAll('.ep-released .ep-check'));
