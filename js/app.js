@@ -28,6 +28,15 @@ function setDisplay(id, display) {
   document.getElementById(id)?.style.setProperty('display', display, 'important');
 }
 
+function statusIcon(status) {
+  const paths = {
+    watchlist: 'M7 4.5h10a1 1 0 0 1 1 1v15l-6-3.7-6 3.7v-15a1 1 0 0 1 1-1Z',
+    watching: 'm8 5 11 7-11 7V5Z',
+    watched: 'm5 12.5 4.2 4.2L19 7'
+  };
+  return `<svg class="status-icon status-icon-${status}" viewBox="0 0 24 24" aria-hidden="true"><path d="${paths[status]}"></path></svg>`;
+}
+
 // ─── SUPABASE AUTH ────────────────────────────────────────────────
 async function signInGoogle() {
   if (!sb) return;
@@ -407,13 +416,13 @@ function renderCards(items, gridId) {
       <div class="card-overlay"></div>
       <div class="card-actions">
         <button class="wl-btn ${state==='watchlist'?'wl-active-watchlist':''}" title="Want to watch" aria-label="Want to watch">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4.5h10a1 1 0 0 1 1 1v15l-6-3.7-6 3.7v-15a1 1 0 0 1 1-1Z"></path></svg>
+          ${statusIcon('watchlist')}
         </button>
         <button class="wl-btn ${state==='watching'?'wl-active-watching':''}" title="Watching" aria-label="Watching">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m8 5 11 7-11 7V5Z"></path></svg>
+          ${statusIcon('watching')}
         </button>
         <button class="wl-btn ${state==='watched'?'wl-active-watched':''}" title="Watched" aria-label="Watched">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12.5 4.2 4.2L19 7"></path></svg>
+          ${statusIcon('watched')}
         </button>
       </div>
       <div class="card-body">
@@ -523,9 +532,8 @@ function renderWatchlistTab(tab) {
   const items = Object.values(watchlist).filter(v=>v.status===tab).map(v=>v.item);
   const c = document.getElementById('main-content');
   const labels = { watchlist:'No titles in your watchlist yet.', watching:'Not watching anything yet.', watched:'No watched titles yet.' };
-  const icons  = { watchlist:'ti-bookmark', watching:'ti-player-play', watched:'ti-circle-check' };
   if (!items.length) {
-    c.innerHTML = `<div class="empty-state"><i class="ti ${icons[tab]}"></i><p>${labels[tab]}</p></div>`;
+    c.innerHTML = `<div class="empty-state empty-state-status">${statusIcon(tab)}<p>${labels[tab]}</p></div>`;
     return;
   }
   c.innerHTML = `<div class="section-label">${items.length} title${items.length!==1?'s':''}</div><div class="grid" id="g-wl"></div>`;
@@ -646,11 +654,11 @@ function renderDetail(data, type) {
       <div class="detail-back" id="back-btn">← Back</div>
       <div class="detail-actions">
         <button class="action-btn act-watchlist ${state==='watchlist'?'active':''}" data-s="watchlist">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4.5h10a1 1 0 0 1 1 1v15l-6-3.7-6 3.7v-15a1 1 0 0 1 1-1Z"></path></svg>
+          ${statusIcon('watchlist')}
           Want to watch
         </button>
-        <button class="action-btn act-watching  ${state==='watching'?'active':''}"  data-s="watching">▶ Watching</button>
-        <button class="action-btn act-watched   ${state==='watched'?'active':''}"   data-s="watched">✓ Watched</button>
+        <button class="action-btn act-watching  ${state==='watching'?'active':''}"  data-s="watching">${statusIcon('watching')} Watching</button>
+        <button class="action-btn act-watched   ${state==='watched'?'active':''}"   data-s="watched">${statusIcon('watched')} Watched</button>
       </div>
       <div class="detail-desc">${data.overview||'No description available.'}</div>
       <div class="detail-facts">${facts}</div>

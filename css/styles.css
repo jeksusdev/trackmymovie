@@ -416,6 +416,17 @@
   }
   .tab-btn:hover { color: #d0cde8; }
   .tab-btn.active { color: var(--accent2); border-bottom-color: var(--accent); }
+  .tab-btn svg {
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2.4;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  .tab-btn[data-tab="watching"] svg { fill: currentColor; stroke-width: 1.8; }
   .tab-count {
     font-size: 11px;
     background: var(--surface3);
@@ -617,6 +628,16 @@
     gap: 12px;
   }
   .empty-state i { font-size: 40px; }
+  .empty-state-status svg {
+    width: 40px;
+    height: 40px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  .empty-state-status .status-icon-watching { fill: currentColor; stroke-width: 1.5; }
   .empty-state p { font-size: 14px; max-width: 300px; }
 
   /* SPINNER */
@@ -870,6 +891,7 @@
     stroke-linecap: round;
     stroke-linejoin: round;
   }
+  .action-btn.act-watching svg { fill: currentColor; stroke-width: 1.8; }
   .action-btn.act-watchlist.active { background: var(--accent-bg); border-color: var(--accent); color: var(--accent2); }
   .action-btn.act-watching.active { background: var(--amber-bg); border-color: var(--amber); color: var(--amber); }
   .action-btn.act-watched.active { background: var(--success-bg); border-color: var(--success); color: var(--success); }
