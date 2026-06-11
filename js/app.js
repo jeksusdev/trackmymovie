@@ -18,6 +18,15 @@ let airStatusCache = {};
 let _popupShowId = null;
 let _popupData   = null;
 
+function isGuestBuildHost() {
+  const host = window.location.hostname;
+  return !host || host === 'localhost' || host === '127.0.0.1' || host.includes('staging');
+}
+
+function setDisplay(id, display) {
+  document.getElementById(id)?.style.setProperty('display', display, 'important');
+}
+
 // ─── SUPABASE AUTH ────────────────────────────────────────────────
 async function signInGoogle() {
   if (!sb) return;
@@ -32,13 +41,13 @@ async function signInGoogle() {
 }
 
 async function signOut() {
-  await sb.auth.signOut();
+  if (sb && currentUser) await sb.auth.signOut();
   currentUser = null;
   watchlist = {};
   episodeChecks = {};
-  document.getElementById('app').style.setProperty('display', 'none', 'important');
+  document.getElementById('app')?.style.setProperty('display', 'none', 'important');
   document.getElementById('detail-view').style.display = 'none';
-  document.getElementById('auth-gate').style.setProperty('display', 'flex', 'important');
+  setDisplay('auth-gate', 'flex');
 }
 
 // ─── STORAGE: SUPABASE (logged in) or localStorage (guest) ────────
@@ -152,6 +161,7 @@ async function bootApp() {
   await prefetchAirStatus();
 
   document.getElementById('auth-gate').style.setProperty('display', 'none', 'important');
+  setDisplay('loading-screen', 'none');
   const app = document.getElementById('app');
   app.style.setProperty('display', 'flex', 'important');
 
@@ -164,6 +174,13 @@ async function bootApp() {
 // ─── SUPABASE INIT ────────────────────────────────────────────────
 // On page load — init Supabase, check session
 document.addEventListener('DOMContentLoaded', async () => {
+  if (isGuestBuildHost()) {
+    setDisplay('auth-gate', 'none');
+    setDisplay('loading-screen', 'flex');
+    await bootApp();
+    return;
+  }
+
   const getSB = () => new Promise(resolve => {
     if (typeof supabase !== 'undefined') return resolve(true);
     let waited = 0;
@@ -192,16 +209,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
 
     // Show loading spinner while checking session — prevents flash of login screen
-    document.getElementById('auth-gate').style.setProperty('display', 'none', 'important');
-    document.getElementById('loading-screen').style.setProperty('display', 'flex', 'important');
-
-    // On staging — skip auth, boot directly as guest
-    const isStaging = window.location.hostname.includes('staging');
-    if (isStaging) {
-      document.getElementById('loading-screen').style.setProperty('display', 'none', 'important');
-      await bootApp();
-      return;
-    }
+    setDisplay('auth-gate', 'none');
+    setDisplay('loading-screen', 'flex');
 
     // Wait for Supabase to process session (from localStorage or URL hash)
     let session = null;
@@ -214,13 +223,13 @@ document.addEventListener('DOMContentLoaded', async () => {
       await new Promise(r => setTimeout(r, 200));
     }
 
-    document.getElementById('loading-screen').style.setProperty('display', 'none', 'important');
+    setDisplay('loading-screen', 'none');
 
     if (session?.user) {
       currentUser = session.user;
       await bootApp();
     } else {
-      document.getElementById('auth-gate').style.setProperty('display', 'flex', 'important');
+      setDisplay('auth-gate', 'flex');
     }
 
     // Listen for sign out
@@ -242,7 +251,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 function renderUserArea() {
   const area = document.getElementById('user-area');
   if (!currentUser) {
-    area.innerHTML = `<button class="user-guest-btn" onclick="signOut()">⎋ Guest</button>`;
+    area.innerHTML = isGuestBuildHost()
+      ? `<span class="user-guest-btn">Guest mode</span>`
+      : `<button class="user-guest-btn" onclick="signOut()">⎋ Guest</button>`;
     return;
   }
   const avatar = currentUser.user_metadata?.avatar_url;

@@ -33,6 +33,15 @@
     min-height: 100vh;
   }
 
+  /* LOADING SCREEN */
+  #loading-screen {
+    display: none !important;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    background: var(--bg);
+  }
+
   /* AUTH GATE */
   #auth-gate {
     display: flex !important;
