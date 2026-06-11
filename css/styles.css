@@ -462,6 +462,21 @@
     border-color: var(--border2);
     box-shadow: 0 8px 32px rgba(0,0,0,0.5);
   }
+  .card.card-status-watchlist {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 1px rgba(124,106,247,0.35), 0 8px 28px rgba(124,106,247,0.12);
+  }
+  .card.card-status-watching {
+    border-color: var(--amber);
+    box-shadow: 0 0 0 1px rgba(245,166,35,0.3), 0 8px 28px rgba(245,166,35,0.1);
+  }
+  .card.card-status-watched {
+    border-color: var(--success);
+    box-shadow: 0 0 0 1px rgba(52,200,122,0.3), 0 8px 28px rgba(52,200,122,0.1);
+  }
+  .card.card-status-watchlist:hover { border-color: var(--accent2); }
+  .card.card-status-watching:hover { border-color: #ffc45e; }
+  .card.card-status-watched:hover { border-color: #62e29a; }
   .card-poster {
     width: 100%;
     aspect-ratio: 2/3;
@@ -541,39 +556,54 @@
     right: 8px;
     display: flex;
     flex-direction: column;
-    gap: 4px;
-    opacity: 0;
+    gap: 6px;
+    opacity: 0.78;
     transition: opacity 0.2s;
   }
   .card:hover .card-actions { opacity: 1; }
   .wl-btn {
-    width: 30px;
-    height: 30px;
+    width: 40px;
+    height: 40px;
     border-radius: 50%;
-    border: 1px solid var(--border2);
-    background: rgba(10,10,15,0.85);
-    color: var(--text2);
-    font-size: 13px;
+    border: 1px solid rgba(255,255,255,0.22);
+    background: rgba(10,10,15,0.92);
+    color: #d7d4e8;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: background 0.2s, color 0.2s;
-    backdrop-filter: blur(4px);
+    transition: transform 0.2s, background 0.2s, color 0.2s, border-color 0.2s, box-shadow 0.2s;
+    backdrop-filter: blur(7px);
   }
-  .wl-btn:hover { background: var(--surface3); }
-  .wl-btn.wl-active-watchlist { color: var(--accent2); }
-  .wl-btn.wl-active-watching { color: var(--amber); }
-  .wl-btn.wl-active-watched { color: var(--success); }
-
-  .status-ribbon {
-    position: absolute;
-    top: 0; left: 0; right: 0;
-    height: 3px;
+  .wl-btn svg {
+    width: 21px;
+    height: 21px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2.4;
+    stroke-linecap: round;
+    stroke-linejoin: round;
   }
-  .ribbon-watchlist { background: var(--accent); }
-  .ribbon-watching { background: var(--amber); }
-  .ribbon-watched { background: var(--success); }
+  .wl-btn:nth-child(2) svg { fill: currentColor; stroke-width: 1.8; }
+  .wl-btn:hover { transform: scale(1.07); background: var(--surface3); color: #fff; }
+  .wl-btn.wl-active-watchlist {
+    border-color: var(--accent);
+    background: rgba(124,106,247,0.28);
+    color: var(--accent2);
+    box-shadow: 0 0 14px rgba(124,106,247,0.35);
+  }
+  .wl-btn.wl-active-watching {
+    border-color: var(--amber);
+    background: rgba(245,166,35,0.25);
+    color: var(--amber);
+    box-shadow: 0 0 14px rgba(245,166,35,0.3);
+  }
+  .wl-btn.wl-active-watched {
+    border-color: var(--success);
+    background: rgba(52,200,122,0.24);
+    color: var(--success);
+    box-shadow: 0 0 14px rgba(52,200,122,0.28);
+  }
 
   /* EMPTY STATE */
   .empty-state {

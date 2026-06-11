@@ -399,16 +399,21 @@ function renderCards(items, gridId) {
     const airLabels  = { onair:'● On Air', ended:'■ Finished', canceled:'✕ Canceled' };
 
     const div = document.createElement('div');
-    div.className = 'card';
+    div.className = `card${state ? ` card-status-${state}` : ''}`;
     div.dataset.id = item.id;
     div.innerHTML = `
-      ${state ? `<div class="status-ribbon ribbon-${state}"></div>` : ''}
       ${poster ? `<img class="card-poster" src="${poster}" alt="${title}" loading="lazy">` : `<div class="card-poster-placeholder">🎬</div>`}
       <div class="card-overlay"></div>
       <div class="card-actions">
-        <button class="wl-btn ${state==='watchlist'?'wl-active-watchlist':''}" title="Want to watch">⊟</button>
-        <button class="wl-btn ${state==='watching'?'wl-active-watching':''}" title="Watching">▶</button>
-        <button class="wl-btn ${state==='watched'?'wl-active-watched':''}" title="Watched">✓</button>
+        <button class="wl-btn ${state==='watchlist'?'wl-active-watchlist':''}" title="Want to watch" aria-label="Want to watch">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4.5h10a1 1 0 0 1 1 1v15l-6-3.7-6 3.7v-15a1 1 0 0 1 1-1Z"></path></svg>
+        </button>
+        <button class="wl-btn ${state==='watching'?'wl-active-watching':''}" title="Watching" aria-label="Watching">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m8 5 11 7-11 7V5Z"></path></svg>
+        </button>
+        <button class="wl-btn ${state==='watched'?'wl-active-watched':''}" title="Watched" aria-label="Watched">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12.5 4.2 4.2L19 7"></path></svg>
+        </button>
       </div>
       <div class="card-body">
         <div class="card-title">${title}</div>
@@ -438,13 +443,8 @@ function renderCards(items, gridId) {
 
 function updateCardUI(id, cardEl) {
   const state = watchlist[id]?.status || null;
-  let ribbon = cardEl.querySelector('.status-ribbon');
-  if (ribbon) ribbon.remove();
-  if (state) {
-    const r = document.createElement('div');
-    r.className = `status-ribbon ribbon-${state}`;
-    cardEl.prepend(r);
-  }
+  cardEl.classList.remove('card-status-watchlist', 'card-status-watching', 'card-status-watched');
+  if (state) cardEl.classList.add(`card-status-${state}`);
   const btns = cardEl.querySelectorAll('.wl-btn');
   const cls  = ['wl-active-watchlist','wl-active-watching','wl-active-watched'];
   btns.forEach((b,i) => b.classList.toggle(cls[i], state===(['watchlist','watching','watched'][i])));
