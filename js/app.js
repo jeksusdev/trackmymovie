@@ -313,16 +313,30 @@ function tmdbLang(text) {
 function setupSearch() {
   const inp = document.getElementById('search-input');
   const badge = document.getElementById('lang-badge');
+  const clear = document.getElementById('search-clear');
+  const updateSearchUI = q => {
+    const lang = detectLang(q);
+    badge.textContent = lang || '';
+    badge.classList.toggle('visible', !!lang);
+    clear.classList.toggle('visible', !!q);
+  };
+
   inp.addEventListener('input', () => {
     const q = inp.value.trim();
-    badge.textContent = detectLang(q) || '';
-    badge.classList.toggle('visible', !!detectLang(q));
+    updateSearchUI(q);
     clearTimeout(searchTimer);
     if (q.length < 2) { if (!q) switchTab(currentTab, true); return; }
     searchTimer = setTimeout(() => doSearch(q), 380);
   });
   inp.addEventListener('keydown', e => {
     if (e.key === 'Enter') { clearTimeout(searchTimer); const q = inp.value.trim(); if (q.length >= 2) doSearch(q); }
+  });
+  clear.addEventListener('click', () => {
+    clearTimeout(searchTimer);
+    inp.value = '';
+    updateSearchUI('');
+    switchTab(currentTab, true);
+    inp.focus();
   });
 }
 
@@ -450,6 +464,7 @@ function switchTab(tab, silent) {
   if (!silent) {
     document.getElementById('search-input').value = '';
     document.getElementById('lang-badge').classList.remove('visible');
+    document.getElementById('search-clear').classList.remove('visible');
   }
   if (tab==='discover') loadDiscover();
   else renderWatchlistTab(tab);
@@ -544,7 +559,7 @@ function renderDetail(data, type) {
     }
   } else {
     facts += `<div class="fact-card"><div class="fact-label">Runtime</div><div class="fact-value">${data.runtime?data.runtime+' min':'—'}</div></div>`;
-    facts += `<div class="fact-card"><div class="fact-label">Rating</div><div class="fact-value">${data.vote_average?Math.round(data.vote_average*10)/10+'/10':'—'}</div></div>`;
+    facts += `<div class="fact-card"><div class="fact-label">TMDB Rating</div><div class="fact-value">${data.vote_average?Math.round(data.vote_average*10)/10+'/10':'—'}</div></div>`;
   }
 
   dv.innerHTML = `
@@ -559,7 +574,7 @@ function renderDetail(data, type) {
           <div class="detail-chips">
             ${year?`<span class="chip">${year}</span>`:''}
             <span class="chip">${type==='tv'?'Series':'Movie'}</span>
-            ${data.vote_average?`<span class="chip">★ ${Math.round(data.vote_average*10)/10}</span>`:''}
+            ${data.vote_average?`<span class="chip tmdb-rating"><img src="https://image.tmdb.org/t/p/original/wwemzKWzjKYJFfCeiB57q3r4Bcm.svg" alt="TMDB">★ ${Math.round(data.vote_average*10)/10}</span>`:''}
             ${airBadgeHtml}
           </div>
         </div>
@@ -585,6 +600,12 @@ function renderDetail(data, type) {
       <div class="detail-desc">${data.overview||'No description available.'}</div>
       <div class="detail-facts">${facts}</div>
       ${type==='tv'?'<div id="seasons-section"><div class="spinner"></div></div>':''}
+      <div class="tmdb-attribution detail-attribution">
+        <a href="https://www.themoviedb.org/" target="_blank" rel="noopener noreferrer" aria-label="Visit The Movie Database">
+          <img src="https://image.tmdb.org/t/p/original/wwemzKWzjKYJFfCeiB57q3r4Bcm.svg" alt="The Movie Database">
+        </a>
+        <span>This product uses the TMDB API but is not endorsed or certified by TMDB.</span>
+      </div>
     </div>`;
 
   document.getElementById('back-btn').addEventListener('click', closeDetail);
