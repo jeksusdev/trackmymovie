@@ -17,6 +17,7 @@ let genreMap    = {};
 let airStatusCache = {};
 let _popupShowId = null;
 let _popupData   = null;
+let _statusChange = null;
 
 function isGuestBuildHost() {
   const host = window.location.hostname;
@@ -430,15 +431,63 @@ function renderCards(items, gridId) {
     ['watchlist','watching','watched'].forEach((s,i) => {
       btns[i].addEventListener('click', async e => {
         e.stopPropagation();
-        await toggleWatchlistDB(item.id, s, item);
-        updateCounts();
-        updateCardUI(item.id, div);
-        if (currentTab !== 'discover') renderWatchlistTab(currentTab);
+        if (currentTab === 'discover') {
+          await applyCardStatusChange(item.id, s, item, div);
+        } else {
+          openStatusPopup(item.id, s, item, div);
+        }
       });
     });
     div.addEventListener('click', () => openDetail(item.id, type));
     grid.appendChild(div);
   });
+}
+
+async function applyCardStatusChange(id, status, item, cardEl) {
+  await toggleWatchlistDB(id, status, item);
+  updateCounts();
+  updateCardUI(id, cardEl);
+  if (currentTab !== 'discover') renderWatchlistTab(currentTab);
+}
+
+function openStatusPopup(id, status, item, cardEl) {
+  const labels = { watchlist:'Want to watch', watching:'Watching', watched:'Watched' };
+  const currentStatus = watchlist[id]?.status || null;
+  const title = item.title || item.name || 'This title';
+  const removing = currentStatus === status;
+  const desc = document.getElementById('status-popup-desc');
+  const strong = text => {
+    const el = document.createElement('strong');
+    el.textContent = text;
+    return el;
+  };
+
+  _statusChange = { id, status, item, cardEl };
+  document.getElementById('status-popup-icon').textContent = removing ? '−' : '↗';
+  document.getElementById('status-popup-title').textContent = removing ? 'Remove from list?' : 'Change status?';
+  desc.replaceChildren();
+  if (removing) {
+    desc.append('Remove ', strong(title), ' from ', strong(labels[status]), '?');
+  } else {
+    desc.append('Move ', strong(title), ' from ', strong(labels[currentStatus] || 'its current list'), ' to ', strong(labels[status]), '?');
+  }
+  document.getElementById('status-popup-confirm').textContent = removing ? 'Remove' : `Move to ${labels[status]}`;
+  document.getElementById('status-popup').style.display = 'flex';
+}
+
+async function confirmStatusChange() {
+  if (!_statusChange) return;
+  const { id, status, item, cardEl } = _statusChange;
+  const confirmBtn = document.getElementById('status-popup-confirm');
+  confirmBtn.disabled = true;
+  await applyCardStatusChange(id, status, item, cardEl);
+  confirmBtn.disabled = false;
+  closeStatusPopup();
+}
+
+function closeStatusPopup() {
+  document.getElementById('status-popup').style.display = 'none';
+  _statusChange = null;
 }
 
 function updateCardUI(id, cardEl) {

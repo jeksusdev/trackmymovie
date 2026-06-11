@@ -84,6 +84,20 @@
 <!-- DETAIL VIEW -->
 <div id="detail-view"></div>
 
+<!-- STATUS CHANGE CONFIRMATION -->
+<div id="status-popup">
+  <div class="modal-backdrop" onclick="closeStatusPopup()"></div>
+  <div class="modal-box">
+    <div class="status-popup-icon" id="status-popup-icon">↗</div>
+    <div class="modal-title" id="status-popup-title">Change status?</div>
+    <div class="modal-desc" id="status-popup-desc"></div>
+    <div class="modal-actions">
+      <button class="modal-btn status-popup-confirm" id="status-popup-confirm" onclick="confirmStatusChange()">Confirm</button>
+      <button class="modal-btn modal-cancel" onclick="closeStatusPopup()">Cancel</button>
+    </div>
+  </div>
+</div>
+
 <!-- WATCHED COMPLETION POPUP -->
 <div id="watched-popup">
   <div id="watched-popup-backdrop" onclick="closeWatchedPopup()"></div>
