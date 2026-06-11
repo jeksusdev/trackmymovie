@@ -480,7 +480,7 @@ async function openDetail(id, type) {
   dv.style.minHeight = '100vh';
   dv.innerHTML = '<div class="spinner" style="margin-top:5rem"></div>';
   try {
-    const data = await fetch(`${TMDB_BASE}/${type}/${id}?api_key=${TMDB_KEY}&language=en-US&append_to_response=credits`).then(r=>r.json());
+    const data = await fetch(`${TMDB_BASE}/${type}/${id}?api_key=${TMDB_KEY}&language=en-US&append_to_response=credits,videos`).then(r=>r.json());
     renderDetail(data, type);
   } catch(e) {
     dv.innerHTML = `<div class="empty-state">⚠<p>Could not load details.</p></div>`;
@@ -501,6 +501,15 @@ function canSuggestWatched(data, type) {
   return (airStatus === 'ended' || airStatus === 'canceled') && !data.next_episode_to_air;
 }
 
+function getTrailer(data) {
+  const trailers = (data.videos?.results || []).filter(video =>
+    video.site === 'YouTube' &&
+    video.type === 'Trailer' &&
+    /^[\w-]+$/.test(video.key)
+  );
+  return trailers.find(video => video.official) || trailers[0] || null;
+}
+
 function renderDetail(data, type) {
   const dv    = document.getElementById('detail-view');
   const id    = data.id;
@@ -515,6 +524,7 @@ function renderDetail(data, type) {
     : (data.networks||[]).map(n=>n.name).slice(0,2).join(', ')||'—';
   const state = watchlist[id]?.status || null;
   const airStatus = getAirStatus(data, type);
+  const trailer = getTrailer(data);
   if (airStatus) airStatusCache[id] = airStatus;
 
   const airBadges  = { onair:'● On Air', ended:'■ Finished', canceled:'✕ Canceled' };
@@ -553,6 +563,16 @@ function renderDetail(data, type) {
             ${airBadgeHtml}
           </div>
         </div>
+        ${trailer ? `
+          <div class="detail-trailer">
+            <div class="trailer-label">Trailer</div>
+            <button class="trailer-preview" type="button" data-youtube-key="${trailer.key}" aria-label="Play trailer">
+              <img src="https://i.ytimg.com/vi/${trailer.key}/hqdefault.jpg" alt="" loading="lazy">
+              <span class="trailer-shade"></span>
+              <span class="trailer-play">▶</span>
+              <span class="trailer-cta">Watch trailer</span>
+            </button>
+          </div>` : ''}
       </div>
     </div>
     <div class="detail-body">
@@ -568,6 +588,18 @@ function renderDetail(data, type) {
     </div>`;
 
   document.getElementById('back-btn').addEventListener('click', closeDetail);
+
+  dv.querySelector('.trailer-preview')?.addEventListener('click', function() {
+    const key = this.dataset.youtubeKey;
+    const iframe = document.createElement('iframe');
+    iframe.src = `https://www.youtube-nocookie.com/embed/${key}?autoplay=1&rel=0`;
+    iframe.title = 'Trailer';
+    iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
+    iframe.allowFullscreen = true;
+    iframe.referrerPolicy = 'strict-origin-when-cross-origin';
+    iframe.className = 'trailer-iframe';
+    this.replaceWith(iframe);
+  });
 
   dv.querySelectorAll('.action-btn').forEach(btn => {
     btn.addEventListener('click', async () => {

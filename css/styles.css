@@ -654,6 +654,84 @@
     border: 1px solid var(--border2);
     color: var(--text2);
   }
+  .detail-trailer {
+    width: min(320px, 36vw);
+    flex-shrink: 0;
+    margin-left: auto;
+  }
+  .trailer-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    margin-bottom: 6px;
+    border: 1px solid rgba(240,80,80,0.35);
+    border-radius: 50px;
+    background: rgba(240,80,80,0.12);
+    color: #ff8a8a;
+    padding: 2px 8px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  .trailer-preview, .trailer-iframe {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    display: block;
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: var(--r);
+    overflow: hidden;
+    background: #050508;
+    box-shadow: 0 12px 30px rgba(0,0,0,0.35);
+  }
+  .trailer-preview {
+    position: relative;
+    padding: 0;
+    cursor: pointer;
+    color: #fff;
+  }
+  .trailer-preview img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.3s, filter 0.3s;
+  }
+  .trailer-shade {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgba(0,0,0,0.75), rgba(0,0,0,0.05) 65%);
+  }
+  .trailer-play {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 48px;
+    height: 48px;
+    transform: translate(-50%, -50%);
+    display: grid;
+    place-items: center;
+    padding-left: 3px;
+    border-radius: 50%;
+    background: rgba(240,80,80,0.92);
+    box-shadow: 0 6px 20px rgba(240,80,80,0.4);
+    font-size: 17px;
+    transition: transform 0.2s, background 0.2s;
+  }
+  .trailer-cta {
+    position: absolute;
+    left: 12px;
+    bottom: 9px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+  }
+  .trailer-preview:hover img { transform: scale(1.04); filter: brightness(1.08); }
+  .trailer-preview:hover .trailer-play {
+    transform: translate(-50%, -50%) scale(1.08);
+    background: var(--danger);
+  }
+  .trailer-iframe { border: 0; }
 
   .detail-body {
     padding: 1.5rem;
@@ -852,6 +930,11 @@
 
   @media (max-width: 560px) {
     .season-bulk-bar { align-items: flex-start; flex-direction: column; }
+  }
+
+  @media (max-width: 820px) {
+    .detail-content { flex-wrap: wrap; }
+    .detail-trailer { width: 100%; margin-top: 4px; }
   }
 
   ::-webkit-scrollbar { width: 5px; }
