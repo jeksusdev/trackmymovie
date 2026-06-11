@@ -860,6 +860,16 @@
     transition: all 0.2s;
   }
   .action-btn:hover { color: var(--text); }
+  .action-btn svg {
+    width: 17px;
+    height: 17px;
+    flex-shrink: 0;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2.4;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
   .action-btn.act-watchlist.active { background: var(--accent-bg); border-color: var(--accent); color: var(--accent2); }
   .action-btn.act-watching.active { background: var(--amber-bg); border-color: var(--amber); color: var(--amber); }
   .action-btn.act-watched.active { background: var(--success-bg); border-color: var(--success); color: var(--success); }

@@ -645,7 +645,10 @@ function renderDetail(data, type) {
     <div class="detail-body">
       <div class="detail-back" id="back-btn">← Back</div>
       <div class="detail-actions">
-        <button class="action-btn act-watchlist ${state==='watchlist'?'active':''}" data-s="watchlist">⊟ Want to watch</button>
+        <button class="action-btn act-watchlist ${state==='watchlist'?'active':''}" data-s="watchlist">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4.5h10a1 1 0 0 1 1 1v15l-6-3.7-6 3.7v-15a1 1 0 0 1 1-1Z"></path></svg>
+          Want to watch
+        </button>
         <button class="action-btn act-watching  ${state==='watching'?'active':''}"  data-s="watching">▶ Watching</button>
         <button class="action-btn act-watched   ${state==='watched'?'active':''}"   data-s="watched">✓ Watched</button>
       </div>
