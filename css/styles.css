@@ -684,7 +684,17 @@
     color: var(--text2);
   }
   .tmdb-rating { display: inline-flex; align-items: center; gap: 5px; }
-  .tmdb-rating img { width: 34px; height: 9px; object-fit: contain; }
+  .tmdb-rating strong { color: #90cea1; font-size: 9px; letter-spacing: 0.05em; }
+  .imdb-link {
+    display: inline-flex;
+    align-items: center;
+    background: #f5c518;
+    border-color: #f5c518;
+    color: #111 !important;
+    font-weight: 800;
+    text-decoration: none;
+  }
+  .imdb-link:hover { background: #ffd84d; border-color: #ffd84d; }
   .detail-trailer {
     width: min(320px, 36vw);
     flex-shrink: 0;

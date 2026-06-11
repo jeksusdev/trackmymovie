@@ -495,7 +495,7 @@ async function openDetail(id, type) {
   dv.style.minHeight = '100vh';
   dv.innerHTML = '<div class="spinner" style="margin-top:5rem"></div>';
   try {
-    const data = await fetch(`${TMDB_BASE}/${type}/${id}?api_key=${TMDB_KEY}&language=en-US&append_to_response=credits,videos`).then(r=>r.json());
+    const data = await fetch(`${TMDB_BASE}/${type}/${id}?api_key=${TMDB_KEY}&language=en-US&append_to_response=credits,videos,external_ids`).then(r=>r.json());
     renderDetail(data, type);
   } catch(e) {
     dv.innerHTML = `<div class="empty-state">⚠<p>Could not load details.</p></div>`;
@@ -540,6 +540,8 @@ function renderDetail(data, type) {
   const state = watchlist[id]?.status || null;
   const airStatus = getAirStatus(data, type);
   const trailer = getTrailer(data);
+  const imdbId = data.external_ids?.imdb_id;
+  const imdbUrl = /^tt\d+$/.test(imdbId || '') ? `https://www.imdb.com/title/${imdbId}/` : null;
   if (airStatus) airStatusCache[id] = airStatus;
 
   const airBadges  = { onair:'● On Air', ended:'■ Finished', canceled:'✕ Canceled' };
@@ -574,7 +576,8 @@ function renderDetail(data, type) {
           <div class="detail-chips">
             ${year?`<span class="chip">${year}</span>`:''}
             <span class="chip">${type==='tv'?'Series':'Movie'}</span>
-            ${data.vote_average?`<span class="chip tmdb-rating"><img src="https://image.tmdb.org/t/p/original/wwemzKWzjKYJFfCeiB57q3r4Bcm.svg" alt="TMDB">★ ${Math.round(data.vote_average*10)/10}</span>`:''}
+            ${data.vote_average?`<span class="chip tmdb-rating"><strong>TMDB</strong> ★ ${Math.round(data.vote_average*10)/10}</span>`:''}
+            ${imdbUrl?`<a class="chip imdb-link" href="${imdbUrl}" target="_blank" rel="noopener noreferrer">IMDb ↗</a>`:''}
             ${airBadgeHtml}
           </div>
         </div>
@@ -602,7 +605,7 @@ function renderDetail(data, type) {
       ${type==='tv'?'<div id="seasons-section"><div class="spinner"></div></div>':''}
       <div class="tmdb-attribution detail-attribution">
         <a href="https://www.themoviedb.org/" target="_blank" rel="noopener noreferrer" aria-label="Visit The Movie Database">
-          <img src="https://image.tmdb.org/t/p/original/wwemzKWzjKYJFfCeiB57q3r4Bcm.svg" alt="The Movie Database">
+          <img src="https://www.themoviedb.org/assets/2/v4/logos/v2/blue_long_2-9665a76b1ae401a510ec1e0ca40ddcb3b0cfe45f1d51b77a308fea0845885648.svg" alt="The Movie Database">
         </a>
         <span>This product uses the TMDB API but is not endorsed or certified by TMDB.</span>
       </div>
