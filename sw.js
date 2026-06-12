@@ -1,11 +1,10 @@
-const CACHE_NAME = 'trackmymovie-shell-v1';
+const CACHE_NAME = 'trackmymovie-shell-v2';
 const APP_SHELL = [
   './',
   './index.html',
   './css/styles.css',
   './js/app.js',
   './manifest.webmanifest',
-  './assets/app-icon.svg',
   './assets/app-icon-192.png',
   './assets/app-icon-512.png',
   './assets/apple-touch-icon.png'
