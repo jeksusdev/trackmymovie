@@ -1073,23 +1073,33 @@
     .search-wrap { grid-column: 1 / -1; grid-row: 2; width: 100%; max-width: none; }
     #search-input { min-height: 42px; font-size: 16px; padding-left: 40px; }
     .tabs {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
       gap: 0;
       padding: 0;
       overflow-x: hidden;
     }
     .tab-btn {
-      flex: 1 1 25%;
+      position: relative;
+      flex-direction: column;
       min-width: 0;
       justify-content: center;
-      gap: 4px;
-      padding: 12px 2px;
-      font-size: 11px;
-    }
-    .tab-btn svg { width: 15px; height: 15px; }
-    .tab-count {
-      flex-shrink: 0;
-      padding: 1px 5px;
+      gap: 2px;
+      padding: 8px 2px 7px;
       font-size: 10px;
+      line-height: 1.2;
+    }
+    .tab-btn svg { width: 17px; height: 17px; }
+    .tab-count {
+      position: absolute;
+      top: 6px;
+      left: calc(50% + 7px);
+      flex-shrink: 0;
+      min-width: 15px;
+      padding: 0 4px;
+      font-size: 9px;
+      line-height: 15px;
+      text-align: center;
     }
     main { padding: 1rem 12px; }
     .tmdb-attribution { align-items: flex-start; padding-left: 12px; padding-right: 12px; }
