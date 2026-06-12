@@ -570,7 +570,7 @@ function renderCards(items, gridId) {
     div.dataset.id = item.id;
     div.dataset.type = type;
     div.innerHTML = `
-      ${poster ? `<img class="card-poster" src="${poster}" alt="${title}" width="300" height="450" loading="lazy" decoding="async">` : `<div class="card-poster-placeholder">🎬</div>`}
+      ${poster ? `<img class="card-poster" src="${poster}" alt="${title}" loading="lazy" decoding="async">` : `<div class="card-poster-placeholder">🎬</div>`}
       <div class="card-overlay"></div>
       <button class="card-open-button" type="button" aria-label="Open details for ${title}"></button>
       <div class="card-actions">
@@ -799,7 +799,7 @@ function renderDetail(data, type) {
       ${backdrop?`<img class="detail-backdrop" src="${backdrop}" alt="" width="1280" height="720" decoding="async">`:'<div class="detail-backdrop-placeholder"></div>'}
       <div class="detail-gradient"></div>
       <div class="detail-content">
-        ${poster?`<img class="detail-poster" src="${poster}" alt="${title}" width="200" height="300" decoding="async">`:`<div class="detail-poster-ph">🎬</div>`}
+        ${poster?`<img class="detail-poster" src="${poster}" alt="${title}" decoding="async">`:`<div class="detail-poster-ph">🎬</div>`}
         <div class="detail-info">
           <div class="detail-title">${title}</div>
           ${data.tagline?`<div class="detail-tagline">${escapeHtml(data.tagline)}</div>`:''}
