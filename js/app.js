@@ -569,12 +569,10 @@ function renderCards(items, gridId) {
     div.className = `card${state ? ` card-status-${state}` : ''}`;
     div.dataset.id = item.id;
     div.dataset.type = type;
-    div.tabIndex = 0;
-    div.setAttribute('role', 'button');
-    div.setAttribute('aria-label', `Open details for ${item.title || item.name || 'title'}`);
     div.innerHTML = `
       ${poster ? `<img class="card-poster" src="${poster}" alt="${title}" width="300" height="450" loading="lazy" decoding="async">` : `<div class="card-poster-placeholder">🎬</div>`}
       <div class="card-overlay"></div>
+      <button class="card-open-button" type="button" aria-label="Open details for ${title}"></button>
       <div class="card-actions">
         <button class="wl-btn ${state==='watchlist'?'wl-active-watchlist':''}" title="Watchlist" aria-label="Watchlist">
           ${statusIcon('watchlist')}
@@ -608,12 +606,7 @@ function renderCards(items, gridId) {
         }
       });
     });
-    div.addEventListener('click', () => openDetail(item.id, type));
-    div.addEventListener('keydown', event => {
-      if (event.target !== div || (event.key !== 'Enter' && event.key !== ' ')) return;
-      event.preventDefault();
-      openDetail(item.id, type);
-    });
+    div.querySelector('.card-open-button').addEventListener('click', () => openDetail(item.id, type));
     grid.appendChild(div);
   });
 }

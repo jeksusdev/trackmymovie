@@ -480,10 +480,21 @@
     transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
     position: relative;
   }
-  .card:focus-visible {
+  .card:has(.card-open-button:focus-visible) {
     border-color: var(--accent2);
     box-shadow: 0 0 0 3px rgba(168,150,255,0.28);
   }
+  .card-open-button {
+    position: absolute;
+    z-index: 1;
+    inset: 0;
+    width: 100%;
+    border: 0;
+    background: transparent;
+    cursor: pointer;
+    border-radius: inherit;
+  }
+  .card-open-button:focus-visible { outline-offset: -4px; }
   .card:hover {
     transform: translateY(-3px);
     border-color: var(--border2);
@@ -586,6 +597,7 @@
     gap: 6px;
     opacity: 0.78;
     transition: opacity 0.2s;
+    z-index: 2;
   }
   .card:hover .card-actions { opacity: 1; }
   .wl-btn {
