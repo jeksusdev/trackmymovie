@@ -9,7 +9,10 @@ users that neither account can read, update, or delete the other account's rows.
 The public Supabase anon key is expected in the browser. Never expose a
 `service_role` key in this repository or in client-side code.
 
-## Private access
+## Optional private access
+
+TrackMyMovie currently allows any Google account to register. Only follow these
+steps if the deployment should become private:
 
 1. Run `supabase/signup-allowlist.sql` in the Supabase SQL Editor.
 2. Insert every allowed email address in lowercase into
@@ -28,4 +31,12 @@ TMDB requests use the Cloudflare Pages Function at `/api/tmdb/*`.
 2. In Cloudflare Pages > Settings > Variables and Secrets, add the encrypted
    secret `TMDB_API_KEY` for both Preview and Production.
 3. Redeploy both branches.
-4. Optionally add a Cloudflare rate-limiting rule for `/api/tmdb/*`.
+4. Add a Cloudflare rate-limiting rule for `/api/tmdb/*`.
+
+## Public repository
+
+- Keep secrets in Cloudflare or Supabase settings, never in Git.
+- The Supabase anon key is public by design; RLS is the security boundary.
+- Enable GitHub secret scanning, push protection, Dependabot alerts, and
+  Dependabot security updates.
+- Protect `main` from force pushes and deletion.

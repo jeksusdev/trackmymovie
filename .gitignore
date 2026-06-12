@@ -1,0 +1,36 @@
+# Local environment and secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+*.jks
+*.keystore
+credentials.json
+secrets.*
+
+# Cloudflare local state
+.dev.vars
+.wrangler/
+
+# Dependencies and tooling
+node_modules/
+coverage/
+.cache/
+dist/
+
+# Editors and OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Local test artifacts
+*.log
+*-check.png
+security-*.png
+chrome-*/
+oauth-check/
