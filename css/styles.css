@@ -146,6 +146,8 @@
     margin-bottom: 8px;
     color: #fff;
   }
+  #auth-gate h1 .track { color: #005BBB; }
+  #auth-gate h1 .my { color: #FFD500; }
   #auth-gate p { color: var(--text2); margin-bottom: 2rem; font-size: 15px; }
   #auth-gate .gate-box {
     background: var(--surface);
@@ -203,6 +205,7 @@
     margin-bottom: 0 !important;
     transition: box-shadow 0.2s !important;
   }
+  #google-btn svg { flex-shrink: 0; }
   #google-btn:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.15); opacity: 1 !important; }
 
   .gate-divider {
@@ -282,6 +285,8 @@
     transition: background 0.15s, color 0.15s;
   }
   .user-menu-btn:hover { background: var(--surface2); color: var(--danger); }
+  .user-menu-name { font-weight: 600; font-size: 13px; }
+  .user-menu-email { font-size: 11px; color: var(--text3); }
 
   /* MAIN APP */
   #app { display: none !important; flex-direction: column; min-height: 100vh; min-height: 100dvh; }
@@ -450,6 +455,7 @@
     padding-bottom: 8px;
     border-bottom: 1px solid var(--border2);
   }
+  .section-label-spaced { margin-top: 2rem; }
 
   /* GRID */
   .grid {
@@ -649,6 +655,7 @@
     animation: spin 0.7s linear infinite;
     margin: 3rem auto;
   }
+  .detail-spinner { margin-top: 5rem; }
   @keyframes spin { to { transform: rotate(360deg); } }
 
   /* DETAIL VIEW */

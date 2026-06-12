@@ -14,8 +14,8 @@
 <link rel="apple-touch-icon" href="./assets/apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" media="print" onload="this.media='all'">
-<script async src="https://unpkg.com/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap">
+<script defer src="./vendor/supabase-2.108.1.js"></script>
 <link rel="stylesheet" href="./css/styles.css">
 </head>
 <body>
@@ -36,11 +36,11 @@
 
 <!-- AUTH GATE -->
 <div id="auth-gate">
-  <h1><span style="color:#005BBB">Track</span><span style="color:#FFD500">My</span>Movie</h1>
+  <h1><span class="track">Track</span><span class="my">My</span>Movie</h1>
   <p>Your personal movie &amp; TV tracker</p>
   <div class="gate-box">
-    <button id="google-btn" onclick="signInGoogle()">
-      <svg width="18" height="18" viewBox="0 0 18 18" style="flex-shrink:0"><path fill="#4285F4" d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.874 2.684-6.615z"/><path fill="#34A853" d="M9 18c2.43 0 4.467-.806 5.956-2.184l-2.908-2.258c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332C2.438 15.983 5.482 18 9 18z"/><path fill="#FBBC05" d="M3.964 10.707c-.18-.54-.282-1.117-.282-1.707s.102-1.167.282-1.707V4.961H.957C.347 6.175 0 7.55 0 9s.348 2.826.957 4.039l3.007-2.332z"/><path fill="#EA4335" d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0 5.482 0 2.438 2.017.957 4.961L3.964 7.293C4.672 5.166 6.656 3.58 9 3.58z"/></svg>
+    <button id="google-btn">
+      <svg width="18" height="18" viewBox="0 0 18 18"><path fill="#4285F4" d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.874 2.684-6.615z"/><path fill="#34A853" d="M9 18c2.43 0 4.467-.806 5.956-2.184l-2.908-2.258c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332C2.438 15.983 5.482 18 9 18z"/><path fill="#FBBC05" d="M3.964 10.707c-.18-.54-.282-1.117-.282-1.707s.102-1.167.282-1.707V4.961H.957C.347 6.175 0 7.55 0 9s.348 2.826.957 4.039l3.007-2.332z"/><path fill="#EA4335" d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0 5.482 0 2.438 2.017.957 4.961L3.964 7.293C4.672 5.166 6.656 3.58 9 3.58z"/></svg>
       Continue with Google
     </button>
   </div>
@@ -63,24 +63,24 @@
   </header>
 
   <div class="tabs">
-    <button class="tab-btn active" data-tab="discover" onclick="switchTab('discover')">
+    <button class="tab-btn active" data-tab="discover">
       <svg viewBox="0 0 24 24" aria-hidden="true">
         <circle cx="12" cy="12" r="8"></circle>
         <circle cx="12" cy="12" r="2.5"></circle>
       </svg>
       Discover
     </button>
-    <button class="tab-btn" data-tab="watchlist" onclick="switchTab('watchlist')">
+    <button class="tab-btn" data-tab="watchlist">
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4.5h10a1 1 0 0 1 1 1v15l-6-3.7-6 3.7v-15a1 1 0 0 1 1-1Z"></path></svg>
       Watchlist
       <span class="tab-count" id="count-watchlist">0</span>
     </button>
-    <button class="tab-btn" data-tab="watching" onclick="switchTab('watching')">
+    <button class="tab-btn" data-tab="watching">
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m8 5 11 7-11 7V5Z"></path></svg>
       Watching
       <span class="tab-count" id="count-watching">0</span>
     </button>
-    <button class="tab-btn" data-tab="watched" onclick="switchTab('watched')">
+    <button class="tab-btn" data-tab="watched">
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12.5 4.2 4.2L19 7"></path></svg>
       Watched
       <span class="tab-count" id="count-watched">0</span>
@@ -101,28 +101,28 @@
 
 <!-- STATUS CHANGE CONFIRMATION -->
 <div id="status-popup">
-  <div class="modal-backdrop" onclick="closeStatusPopup()"></div>
+  <div class="modal-backdrop"></div>
   <div class="modal-box">
     <div class="status-popup-icon" id="status-popup-icon">↗</div>
     <div class="modal-title" id="status-popup-title">Change status?</div>
     <div class="modal-desc" id="status-popup-desc"></div>
     <div class="modal-actions">
-      <button class="modal-btn status-popup-confirm" id="status-popup-confirm" onclick="confirmStatusChange()">Confirm</button>
-      <button class="modal-btn modal-cancel" onclick="closeStatusPopup()">Cancel</button>
+      <button class="modal-btn status-popup-confirm" id="status-popup-confirm">Confirm</button>
+      <button class="modal-btn modal-cancel">Cancel</button>
     </div>
   </div>
 </div>
 
 <!-- WATCHED COMPLETION POPUP -->
 <div id="watched-popup">
-  <div id="watched-popup-backdrop" onclick="closeWatchedPopup()"></div>
+  <div id="watched-popup-backdrop"></div>
   <div id="watched-popup-box">
     <div id="watched-popup-icon">🎉</div>
     <div id="watched-popup-title">All episodes watched!</div>
     <div id="watched-popup-desc">You've checked every released episode.<br>Move this show to your <strong>Watched</strong> list?</div>
     <div id="watched-popup-actions">
-      <button class="wpop-btn wpop-confirm" onclick="confirmWatched()">✓ Move to Watched</button>
-      <button class="wpop-btn wpop-cancel" onclick="closeWatchedPopup()">Not yet</button>
+      <button class="wpop-btn wpop-confirm">✓ Move to Watched</button>
+      <button class="wpop-btn wpop-cancel">Not yet</button>
     </div>
   </div>
 </div>

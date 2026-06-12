@@ -1,9 +1,8 @@
 // ─── CONFIG ───────────────────────────────────────────────────────
 const SUPABASE_URL  = 'https://qpxaiztckfbcktfzsmmb.supabase.co';
 const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFweGFpenRja2ZiY2t0ZnpzbW1iIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA3NTg3NDUsImV4cCI6MjA5NjMzNDc0NX0.5kZ-owTKhGaGdawpDfWW0lIFUafsYMOqcNMSwtZk8Wo';
-const TMDB_BASE     = 'https://api.themoviedb.org/3';
+const TMDB_BASE     = '/api/tmdb';
 const IMG           = 'https://image.tmdb.org/t/p/';
-const TMDB_KEY      = '56d22eebdc0c16e4f800875507458997';
 
 let sb = null;
 
@@ -26,6 +25,35 @@ function isGuestBuildHost() {
 
 function setDisplay(id, display) {
   document.getElementById(id)?.style.setProperty('display', display, 'important');
+}
+
+function escapeHtml(value) {
+  return String(value ?? '').replace(/[&<>"']/g, char => ({
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#39;'
+  })[char]);
+}
+
+function safeImageUrl(value, allowedOrigins) {
+  try {
+    const url = new URL(value);
+    return allowedOrigins.includes(url.origin) ? url.href : '';
+  } catch {
+    return '';
+  }
+}
+
+async function tmdbFetch(path, params = {}) {
+  const url = new URL(`${TMDB_BASE}/${path.replace(/^\/+/, '')}`, window.location.origin);
+  Object.entries(params).forEach(([key, value]) => {
+    if (value !== undefined && value !== null && value !== '') url.searchParams.set(key, value);
+  });
+  const response = await fetch(url);
+  if (!response.ok) throw new Error(`TMDB request failed: ${response.status}`);
+  return response.json();
 }
 
 function statusIcon(status) {
@@ -150,8 +178,8 @@ async function removeAllEpChecks(keys) {
 async function loadGenres() {
   try {
     const [mv, tv] = await Promise.all([
-      fetch(`${TMDB_BASE}/genre/movie/list?api_key=${TMDB_KEY}&language=en-US`).then(r=>r.json()),
-      fetch(`${TMDB_BASE}/genre/tv/list?api_key=${TMDB_KEY}&language=en-US`).then(r=>r.json())
+      tmdbFetch('genre/movie/list', { language: 'en-US' }),
+      tmdbFetch('genre/tv/list', { language: 'en-US' })
     ]);
     [...(mv.genres||[]), ...(tv.genres||[])].forEach(g => { genreMap[g.id] = g.name; });
   } catch(e) {}
@@ -164,7 +192,7 @@ async function prefetchAirStatus() {
     .map(i => i.id);
   await Promise.allSettled(tvIds.map(async id => {
     try {
-      const d = await fetch(`${TMDB_BASE}/tv/${id}?api_key=${TMDB_KEY}&language=en-US`).then(r=>r.json());
+      const d = await tmdbFetch(`tv/${Number(id)}`, { language: 'en-US' });
       const s = getAirStatus(d, 'tv');
       if (s) airStatusCache[id] = s;
     } catch(e) {}
@@ -196,6 +224,17 @@ async function bootApp() {
 // ─── SUPABASE INIT ────────────────────────────────────────────────
 // On page load — init Supabase, check session
 document.addEventListener('DOMContentLoaded', async () => {
+  document.getElementById('google-btn').addEventListener('click', signInGoogle);
+  document.querySelectorAll('.tab-btn').forEach(button => {
+    button.addEventListener('click', () => switchTab(button.dataset.tab));
+  });
+  document.querySelector('#status-popup .modal-backdrop').addEventListener('click', closeStatusPopup);
+  document.getElementById('status-popup-confirm').addEventListener('click', confirmStatusChange);
+  document.querySelector('#status-popup .modal-cancel').addEventListener('click', closeStatusPopup);
+  document.getElementById('watched-popup-backdrop').addEventListener('click', closeWatchedPopup);
+  document.querySelector('#watched-popup .wpop-confirm').addEventListener('click', confirmWatched);
+  document.querySelector('#watched-popup .wpop-cancel').addEventListener('click', closeWatchedPopup);
+
   if (isGuestBuildHost()) {
     setDisplay('auth-gate', 'none');
     setDisplay('loading-screen', 'flex');
@@ -275,28 +314,58 @@ document.addEventListener('DOMContentLoaded', async () => {
 // ─── USER AREA IN HEADER ──────────────────────────────────────────
 function renderUserArea() {
   const area = document.getElementById('user-area');
+  area.replaceChildren();
   if (!currentUser) {
-    area.innerHTML = isGuestBuildHost()
-      ? `<span class="user-guest-btn">Guest mode</span>`
-      : `<button class="user-guest-btn" onclick="signOut()">⎋ Guest</button>`;
+    const guest = document.createElement(isGuestBuildHost() ? 'span' : 'button');
+    guest.className = 'user-guest-btn';
+    guest.textContent = isGuestBuildHost() ? 'Guest mode' : '⎋ Guest';
+    if (!isGuestBuildHost()) guest.addEventListener('click', signOut);
+    area.appendChild(guest);
     return;
   }
-  const avatar = currentUser.user_metadata?.avatar_url;
-  const name   = currentUser.user_metadata?.full_name || currentUser.email;
-  area.innerHTML = `
-    <div class="user-pill" onclick="toggleUserMenu()">
-      ${avatar ? `<img src="${avatar}" class="user-avatar" alt="${name}">` : `<div class="user-avatar-ph">◉</div>`}
-      <span class="user-name">${name.split(' ')[0]}</span>
-      ▾
-    </div>
-    <div class="user-menu" id="user-menu">
-      <div class="user-menu-info">
-        <div style="font-weight:600;font-size:13px">${name}</div>
-        <div style="font-size:11px;color:var(--text3)">${currentUser.email}</div>
-      </div>
-      <div class="user-menu-divider"></div>
-      <button class="user-menu-btn" onclick="signOut()">⎋ Sign out</button>
-    </div>`;
+  const avatar = safeImageUrl(currentUser.user_metadata?.avatar_url, ['https://lh3.googleusercontent.com']);
+  const name = String(currentUser.user_metadata?.full_name || currentUser.email || 'User');
+  const pill = document.createElement('button');
+  pill.className = 'user-pill';
+  pill.type = 'button';
+  if (avatar) {
+    const img = document.createElement('img');
+    img.src = avatar;
+    img.className = 'user-avatar';
+    img.alt = name;
+    pill.appendChild(img);
+  } else {
+    const fallback = document.createElement('span');
+    fallback.className = 'user-avatar-ph';
+    fallback.textContent = '◉';
+    pill.appendChild(fallback);
+  }
+  const shortName = document.createElement('span');
+  shortName.className = 'user-name';
+  shortName.textContent = name.split(' ')[0];
+  pill.append(shortName, document.createTextNode(' ▾'));
+  pill.addEventListener('click', toggleUserMenu);
+
+  const menu = document.createElement('div');
+  menu.className = 'user-menu';
+  menu.id = 'user-menu';
+  const info = document.createElement('div');
+  info.className = 'user-menu-info';
+  const fullName = document.createElement('div');
+  fullName.className = 'user-menu-name';
+  fullName.textContent = name;
+  const email = document.createElement('div');
+  email.className = 'user-menu-email';
+  email.textContent = currentUser.email || '';
+  info.append(fullName, email);
+  const divider = document.createElement('div');
+  divider.className = 'user-menu-divider';
+  const signOutButton = document.createElement('button');
+  signOutButton.className = 'user-menu-btn';
+  signOutButton.textContent = '⎋ Sign out';
+  signOutButton.addEventListener('click', signOut);
+  menu.append(info, divider, signOutButton);
+  area.append(pill, menu);
 }
 
 function toggleUserMenu() {
@@ -354,8 +423,7 @@ async function doSearch(q) {
   const lang = tmdbLang(q);
   showLoading();
   try {
-    const r = await fetch(`${TMDB_BASE}/search/multi?api_key=${TMDB_KEY}&language=${lang}&query=${encodeURIComponent(q)}&include_adult=false`);
-    const d = await r.json();
+    const d = await tmdbFetch('search/multi', { language: lang, query: q, include_adult: 'false' });
     const results = (d.results||[]).filter(x => x.media_type==='movie'||x.media_type==='tv');
     renderGrid(results, `Results for "${q}"`);
   } catch(e) { renderError(); }
@@ -366,14 +434,14 @@ async function loadDiscover() {
   showLoading();
   try {
     const [tr, tv] = await Promise.all([
-      fetch(`${TMDB_BASE}/trending/all/week?api_key=${TMDB_KEY}&language=en-US`).then(r=>r.json()),
-      fetch(`${TMDB_BASE}/tv/top_rated?api_key=${TMDB_KEY}&language=en-US`).then(r=>r.json())
+      tmdbFetch('trending/all/week', { language: 'en-US' }),
+      tmdbFetch('tv/top_rated', { language: 'en-US' })
     ]);
     const c = document.getElementById('main-content');
     c.innerHTML = `
       <div class="section-label">Trending this week</div>
       <div class="grid" id="g-trending"></div>
-      <div class="section-label" style="margin-top:2rem">Top rated series</div>
+      <div class="section-label section-label-spaced">Top rated series</div>
       <div class="grid" id="g-toptv"></div>`;
     renderCards(tr.results.slice(0,18), 'g-trending');
     renderCards(tv.results.slice(0,12).map(x=>({...x,media_type:'tv'})), 'g-toptv');
@@ -387,7 +455,7 @@ function renderGrid(items, label) {
     c.innerHTML = `<div class="empty-state">😔<p>Nothing found.</p></div>`;
     return;
   }
-  c.innerHTML = `<div class="section-label">${label} — ${items.length} results</div><div class="grid" id="g-results"></div>`;
+  c.innerHTML = `<div class="section-label">${escapeHtml(label)} — ${items.length} results</div><div class="grid" id="g-results"></div>`;
   renderCards(items, 'g-results');
 }
 
@@ -398,13 +466,13 @@ function renderCards(items, gridId) {
   items.forEach(item => {
     if (!item) return;
     const type   = item.media_type || 'movie';
-    const title  = item.title || item.name || 'Unknown';
-    const year   = (item.release_date || item.first_air_date || '').slice(0,4);
-    const poster = item.poster_path ? `${IMG}w300${item.poster_path}` : null;
+    const title  = escapeHtml(item.title || item.name || 'Unknown');
+    const year   = escapeHtml((item.release_date || item.first_air_date || '').slice(0,4));
+    const poster = /^\/[\w.-]+$/.test(item.poster_path || '') ? `${IMG}w300${item.poster_path}` : null;
     const state  = watchlist[item.id]?.status || null;
     const genreNames = (item.genre_ids||[]).slice(0,2).map(id=>genreMap[id]).filter(Boolean);
-    const genreText  = genreNames.join(' · ');
-    const seasons    = type==='tv' && item.number_of_seasons ? item.number_of_seasons : null;
+    const genreText  = escapeHtml(genreNames.join(' · '));
+    const seasons    = type==='tv' && Number.isInteger(Number(item.number_of_seasons)) ? Number(item.number_of_seasons) : null;
     const airSt      = type==='tv' ? airStatusCache[item.id] : null;
     const airLabels  = { onair:'● On Air', ended:'■ Finished', canceled:'✕ Canceled' };
 
@@ -545,14 +613,18 @@ function renderError()  { document.getElementById('main-content').innerHTML = `<
 
 // ─── DETAIL ───────────────────────────────────────────────────────
 async function openDetail(id, type) {
+  if (!['movie', 'tv'].includes(type) || !Number.isInteger(Number(id))) return;
   document.getElementById('app').style.display = 'none';
   const dv = document.getElementById('detail-view');
   dv.style.display = 'flex';
   dv.style.flexDirection = 'column';
   dv.style.minHeight = '100vh';
-  dv.innerHTML = '<div class="spinner" style="margin-top:5rem"></div>';
+  dv.innerHTML = '<div class="spinner detail-spinner"></div>';
   try {
-    const data = await fetch(`${TMDB_BASE}/${type}/${id}?api_key=${TMDB_KEY}&language=en-US&append_to_response=credits,videos,external_ids`).then(r=>r.json());
+    const data = await tmdbFetch(`${type}/${Number(id)}`, {
+      language: 'en-US',
+      append_to_response: 'credits,videos,external_ids'
+    });
     renderDetail(data, type);
   } catch(e) {
     dv.innerHTML = `<div class="empty-state">⚠<p>Could not load details.</p></div>`;
@@ -585,15 +657,15 @@ function getTrailer(data) {
 function renderDetail(data, type) {
   const dv    = document.getElementById('detail-view');
   const id    = data.id;
-  const title = data.title || data.name || 'Unknown';
-  const year  = (data.release_date || data.first_air_date || '').slice(0,4);
-  const backdrop = data.backdrop_path ? `${IMG}w1280${data.backdrop_path}` : null;
-  const poster   = data.poster_path   ? `${IMG}w200${data.poster_path}`   : null;
-  const genres   = (data.genres||[]).map(g=>g.name).join(', ')||'—';
-  const cast     = (data.credits?.cast||[]).slice(0,5).map(a=>a.name).join(', ')||'—';
+  const title = escapeHtml(data.title || data.name || 'Unknown');
+  const year  = escapeHtml((data.release_date || data.first_air_date || '').slice(0,4));
+  const backdrop = /^\/[\w.-]+$/.test(data.backdrop_path || '') ? `${IMG}w1280${data.backdrop_path}` : null;
+  const poster   = /^\/[\w.-]+$/.test(data.poster_path || '') ? `${IMG}w200${data.poster_path}` : null;
+  const genres   = escapeHtml((data.genres||[]).map(g=>g.name).join(', ')||'—');
+  const cast     = escapeHtml((data.credits?.cast||[]).slice(0,5).map(a=>a.name).join(', ')||'—');
   const studio   = type==='movie'
-    ? (data.production_companies||[]).map(p=>p.name).slice(0,2).join(', ')||'—'
-    : (data.networks||[]).map(n=>n.name).slice(0,2).join(', ')||'—';
+    ? escapeHtml((data.production_companies||[]).map(p=>p.name).slice(0,2).join(', ')||'—')
+    : escapeHtml((data.networks||[]).map(n=>n.name).slice(0,2).join(', ')||'—');
   const state = watchlist[id]?.status || null;
   const airStatus = getAirStatus(data, type);
   const trailer = getTrailer(data);
@@ -610,14 +682,14 @@ function renderDetail(data, type) {
     <div class="fact-card"><div class="fact-label">${type==='tv'?'Network':'Studio'}</div><div class="fact-value">${studio}</div></div>
     <div class="fact-card"><div class="fact-label">Cast</div><div class="fact-value">${cast}</div></div>`;
   if (type==='tv') {
-    facts += `<div class="fact-card"><div class="fact-label">Seasons</div><div class="fact-value">${data.number_of_seasons||'—'}</div></div>`;
-    facts += `<div class="fact-card"><div class="fact-label">Episodes</div><div class="fact-value">${data.number_of_episodes||'—'}</div></div>`;
+    facts += `<div class="fact-card"><div class="fact-label">Seasons</div><div class="fact-value">${Number(data.number_of_seasons)||'—'}</div></div>`;
+    facts += `<div class="fact-card"><div class="fact-label">Episodes</div><div class="fact-value">${Number(data.number_of_episodes)||'—'}</div></div>`;
     if (airStatus) {
       const al = { onair:'On Air', ended:'Finished', canceled:'Canceled' };
       facts += `<div class="fact-card"><div class="fact-label">Status</div><div class="fact-value air-fact-${airStatus}">${al[airStatus]}</div></div>`;
     }
   } else {
-    facts += `<div class="fact-card"><div class="fact-label">Runtime</div><div class="fact-value">${data.runtime?data.runtime+' min':'—'}</div></div>`;
+    facts += `<div class="fact-card"><div class="fact-label">Runtime</div><div class="fact-value">${Number(data.runtime)?Number(data.runtime)+' min':'—'}</div></div>`;
     facts += `<div class="fact-card"><div class="fact-label">TMDB Rating</div><div class="fact-value">${data.vote_average?Math.round(data.vote_average*10)/10+'/10':'—'}</div></div>`;
   }
 
@@ -629,7 +701,7 @@ function renderDetail(data, type) {
         ${poster?`<img class="detail-poster" src="${poster}" alt="${title}">`:`<div class="detail-poster-ph">🎬</div>`}
         <div class="detail-info">
           <div class="detail-title">${title}</div>
-          ${data.tagline?`<div class="detail-tagline">${data.tagline}</div>`:''}
+          ${data.tagline?`<div class="detail-tagline">${escapeHtml(data.tagline)}</div>`:''}
           <div class="detail-chips">
             ${year?`<span class="chip">${year}</span>`:''}
             <span class="chip">${type==='tv'?'Series':'Movie'}</span>
@@ -660,7 +732,7 @@ function renderDetail(data, type) {
         <button class="action-btn act-watching  ${state==='watching'?'active':''}"  data-s="watching">${statusIcon('watching')} Watching</button>
         <button class="action-btn act-watched   ${state==='watched'?'active':''}"   data-s="watched">${statusIcon('watched')} Watched</button>
       </div>
-      <div class="detail-desc">${data.overview||'No description available.'}</div>
+      <div class="detail-desc">${escapeHtml(data.overview||'No description available.')}</div>
       <div class="detail-facts">${facts}</div>
       ${type==='tv'?'<div id="seasons-section"><div class="spinner"></div></div>':''}
       <div class="tmdb-attribution detail-attribution">
@@ -737,7 +809,7 @@ async function loadSeasons(showId, count, allowWatchedSuggestion) {
 
   for (let n = 1; n <= count; n++) {
     try {
-      const s = await fetch(`${TMDB_BASE}/tv/${showId}/season/${n}?api_key=${TMDB_KEY}&language=en-US`).then(r=>r.json());
+      const s = await tmdbFetch(`tv/${Number(showId)}/season/${n}`, { language: 'en-US' });
       const eps = s.episodes || [];
       const today = new Date(); today.setHours(0,0,0,0);
 
@@ -757,7 +829,8 @@ async function loadSeasons(showId, count, allowWatchedSuggestion) {
       const block = document.createElement('div');
       block.className = 'season-block';
       const rows = eps.map(ep => {
-        const key = `${showId}_s${n}_e${ep.episode_number}`;
+        const episodeNumber = Number(ep.episode_number) || 0;
+        const key = `${Number(showId) || 0}_s${n}_e${episodeNumber}`;
         const done = !!episodeChecks[key];
         let released = false, daysLeft = null;
         if (ep.air_date) {
@@ -771,16 +844,16 @@ async function loadSeasons(showId, count, allowWatchedSuggestion) {
           : '';
         return `<div class="${rowClass}">
           <input type="checkbox" class="ep-check" ${done?'checked':''} ${!released?'disabled':''} data-key="${key}">
-          <span class="ep-num">E${ep.episode_number}</span>
-          <span class="ep-title">${ep.name||'Episode '+ep.episode_number}</span>
+          <span class="ep-num">E${episodeNumber}</span>
+          <span class="ep-title">${escapeHtml(ep.name||'Episode '+episodeNumber)}</span>
           ${countdown}
-          ${ep.air_date?`<span class="ep-date">${ep.air_date}</span>`:''}
+          ${ep.air_date?`<span class="ep-date">${escapeHtml(ep.air_date)}</span>`:''}
         </div>`;
       }).join('');
 
       block.innerHTML = `
         <div class="season-header">
-          <span class="season-name">Season ${n}${s.name&&s.name!==`Season ${n}`?' — '+s.name:''}</span>
+          <span class="season-name">Season ${n}${s.name&&s.name!==`Season ${n}`?' — '+escapeHtml(s.name):''}</span>
           <div class="season-header-actions">
             <span class="season-ep-count">${eps.length} ep</span>
             <span class="season-chevron">▾</span>
