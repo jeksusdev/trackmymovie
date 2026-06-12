@@ -1072,7 +1072,25 @@
     .user-pill { padding-right: 6px; }
     .search-wrap { grid-column: 1 / -1; grid-row: 2; width: 100%; max-width: none; }
     #search-input { min-height: 42px; font-size: 16px; padding-left: 40px; }
-    .tabs { padding: 0 8px; }
+    .tabs {
+      gap: 0;
+      padding: 0;
+      overflow-x: hidden;
+    }
+    .tab-btn {
+      flex: 1 1 25%;
+      min-width: 0;
+      justify-content: center;
+      gap: 4px;
+      padding: 12px 2px;
+      font-size: 11px;
+    }
+    .tab-btn svg { width: 15px; height: 15px; }
+    .tab-count {
+      flex-shrink: 0;
+      padding: 1px 5px;
+      font-size: 10px;
+    }
     main { padding: 1rem 12px; }
     .tmdb-attribution { align-items: flex-start; padding-left: 12px; padding-right: 12px; }
     .detail-attribution { padding-left: 0; padding-right: 0; }
