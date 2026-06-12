@@ -519,6 +519,7 @@
   .card.card-status-watched:hover { border-color: #62e29a; }
   .card-poster {
     width: 100%;
+    height: auto;
     aspect-ratio: 2/3;
     object-fit: cover;
     display: block;
@@ -727,6 +728,7 @@
   }
   .detail-poster {
     width: 110px;
+    height: auto;
     border-radius: var(--r);
     flex-shrink: 0;
     border: 2px solid rgba(255,255,255,0.1);
