@@ -415,7 +415,7 @@ function renderCards(items, gridId) {
       ${poster ? `<img class="card-poster" src="${poster}" alt="${title}" loading="lazy">` : `<div class="card-poster-placeholder">🎬</div>`}
       <div class="card-overlay"></div>
       <div class="card-actions">
-        <button class="wl-btn ${state==='watchlist'?'wl-active-watchlist':''}" title="Want to watch" aria-label="Want to watch">
+        <button class="wl-btn ${state==='watchlist'?'wl-active-watchlist':''}" title="Watchlist" aria-label="Watchlist">
           ${statusIcon('watchlist')}
         </button>
         <button class="wl-btn ${state==='watching'?'wl-active-watching':''}" title="Watching" aria-label="Watching">
@@ -460,7 +460,7 @@ async function applyCardStatusChange(id, status, item, cardEl) {
 }
 
 function openStatusPopup(id, status, item, cardEl) {
-  const labels = { watchlist:'Want to watch', watching:'Watching', watched:'Watched' };
+  const labels = { watchlist:'Watchlist', watching:'Watching', watched:'Watched' };
   const currentStatus = watchlist[id]?.status || null;
   const title = item.title || item.name || 'This title';
   const removing = currentStatus === status;
@@ -655,7 +655,7 @@ function renderDetail(data, type) {
       <div class="detail-actions">
         <button class="action-btn act-watchlist ${state==='watchlist'?'active':''}" data-s="watchlist">
           ${statusIcon('watchlist')}
-          Want to watch
+          Watchlist
         </button>
         <button class="action-btn act-watching  ${state==='watching'?'active':''}"  data-s="watching">${statusIcon('watching')} Watching</button>
         <button class="action-btn act-watched   ${state==='watched'?'active':''}"   data-s="watched">${statusIcon('watched')} Watched</button>
