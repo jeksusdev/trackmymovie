@@ -1,9 +1,11 @@
-const CACHE_NAME = 'trackmymovie-shell-v3';
+const CACHE_NAME = 'trackmymovie-shell-v4';
 const APP_SHELL = [
   './',
   './index.html',
   './css/styles.css',
   './js/app.js',
+  './js/core.js',
+  './js/api.js',
   './vendor/supabase-2.108.1.js',
   './manifest.webmanifest',
   './assets/app-icon-192.png',

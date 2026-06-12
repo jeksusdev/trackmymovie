@@ -29,11 +29,23 @@ export async function onRequestGet(context) {
   const incoming = new URL(context.request.url);
   const upstream = new URL(`https://api.themoviedb.org/3/${path}`);
   for (const [key, value] of incoming.searchParams) {
-    if (ALLOWED_PARAMS.has(key)) upstream.searchParams.set(key, value.slice(0, 300));
+    if (!ALLOWED_PARAMS.has(key)) continue;
+    if (key === 'language' && !/^[a-z]{2}-[A-Z]{2}$/.test(value)) continue;
+    if (key === 'include_adult' && !['true', 'false'].includes(value)) continue;
+    if (key === 'append_to_response' && value !== 'credits,videos,external_ids') continue;
+    upstream.searchParams.set(key, value.slice(0, 300));
   }
   upstream.searchParams.set('api_key', apiKey);
 
-  const response = await fetch(upstream, { headers: { Accept: 'application/json' } });
+  let response;
+  try {
+    response = await fetch(upstream, {
+      headers: { Accept: 'application/json' },
+      signal: AbortSignal.timeout(10000)
+    });
+  } catch {
+    return json({ error: 'TMDB request timed out' }, 504);
+  }
   return new Response(response.body, {
     status: response.status,
     headers: {

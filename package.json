@@ -1,0 +1,8 @@
+{
+  "name": "trackmymovie",
+  "private": true,
+  "scripts": {
+    "check": "node --check js/core.js && node --check js/api.js && node --check js/app.js && node --check sw.js",
+    "test": "node --test tests/*.test.js"
+  }
+}

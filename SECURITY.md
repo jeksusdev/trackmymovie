@@ -6,6 +6,9 @@ Run `supabase/security-hardening.sql` in the Supabase SQL Editor. It replaces
 all existing policies on the two user-data tables. Then test with two different
 users that neither account can read, update, or delete the other account's rows.
 
+Run `supabase/media-type-migration.sql` once before deploying clients that use
+media-type-aware watchlist keys. The migration preserves existing rows.
+
 The public Supabase anon key is expected in the browser. Never expose a
 `service_role` key in this repository or in client-side code.
 

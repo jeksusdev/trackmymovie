@@ -13,3 +13,12 @@ Cloudflare Pages.
 
 Never commit private API keys or service-role credentials. The Supabase anon key
 is intentionally public and must always be protected by RLS.
+
+## Development
+
+Run `node --test tests/*.test.js` and `node --check js/app.js` before publishing.
+
+Before deploying the media-type-aware client to production, run
+`supabase/media-type-migration.sql` once in the Supabase SQL Editor. It preserves
+existing watchlist rows and allows movies and series with the same TMDB ID to
+coexist.
