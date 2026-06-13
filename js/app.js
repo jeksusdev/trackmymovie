@@ -587,8 +587,16 @@ function renderTelegramState(connection) {
 }
 
 async function connectTelegram() {
-  const result = await notifierRequest('/api/telegram/connect', { method: 'POST' });
-  window.location.assign(result.deepLink);
+  const telegramWindow = window.open('about:blank', '_blank');
+  if (telegramWindow) telegramWindow.opener = null;
+  try {
+    const result = await notifierRequest('/api/telegram/connect', { method: 'POST' });
+    if (telegramWindow) telegramWindow.location.replace(result.deepLink);
+    else window.open(result.deepLink, '_blank', 'noopener,noreferrer');
+  } catch (error) {
+    telegramWindow?.close();
+    throw error;
+  }
 }
 
 async function renderTelegramWatchingBanner() {
