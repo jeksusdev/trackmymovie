@@ -30,7 +30,7 @@ Authentication > Users.
 
 TMDB requests use the Cloudflare Pages Function at `/api/tmdb/*`.
 
-1. Rotate the currently exposed TMDB key.
+1. Rotate any TMDB key that has ever appeared in Git history.
 2. In Cloudflare Pages > Settings > Variables and Secrets, add the encrypted
    secret `TMDB_API_KEY` for both Preview and Production.
 3. Redeploy both branches.

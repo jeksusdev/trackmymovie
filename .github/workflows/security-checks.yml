@@ -15,6 +15,8 @@ jobs:
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Check JavaScript syntax
         run: |
@@ -38,6 +40,28 @@ jobs:
             '(service_role|BEGIN (RSA |EC |OPENSSH )?PRIVATE KEY|CLOUDFLARE_API_TOKEN|TMDB_API_KEY[[:space:]]*=[[:space:]]*[^$]|api_key=[A-Za-z0-9]{20,})' \
             .; then
             echo 'Potential private secret detected.'
+            exit 1
+          fi
+
+      - name: Ensure new commits do not introduce secrets
+        shell: bash
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            range="${{ github.event.pull_request.base.sha }}..${{ github.event.pull_request.head.sha }}"
+          else
+            range="${{ github.event.before }}..${{ github.sha }}"
+            if [ "${{ github.event.before }}" = "0000000000000000000000000000000000000000" ]; then
+              range="${{ github.sha }}"
+            fi
+          fi
+
+          if git grep -n -I -E \
+            '(sb_secret_[A-Za-z0-9_-]{16,}|[0-9]{8,10}:[A-Za-z0-9_-]{30,}|BEGIN (RSA |EC |OPENSSH )?PRIVATE KEY|CLOUDFLARE_API_TOKEN[[:space:]]*=|SUPABASE_SERVICE_ROLE_KEY[[:space:]]*=[[:space:]]*[^$]|TELEGRAM_BOT_TOKEN[[:space:]]*=[[:space:]]*[^$]|TMDB_API_KEY[[:space:]]*=[[:space:]]*[^$]|const TMDB_KEY[[:space:]]*=[[:space:]]*['"'"'"][A-Za-z0-9]{20,})' \
+            $(git rev-list "$range") \
+            -- \
+            ':(exclude).github/workflows/security-checks.yml' \
+            ':(exclude)SECURITY.md'; then
+            echo 'A new commit introduced a potential private secret.'
             exit 1
           fi
 
