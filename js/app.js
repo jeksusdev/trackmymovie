@@ -588,6 +588,37 @@ async function connectTelegram() {
   window.location.assign(result.deepLink);
 }
 
+async function renderTelegramWatchingBanner() {
+  const banner = document.getElementById('telegram-watching-banner');
+  if (!banner || !currentUser) return;
+  banner.className = 'telegram-watching-banner telegram-watching-loading';
+  banner.textContent = 'Checking Telegram notifications…';
+  try {
+    const connection = await notifierRequest('/api/telegram/status');
+    if (!document.getElementById('telegram-watching-banner')) return;
+    const connected = connection.state === 'connected';
+    banner.className = `telegram-watching-banner telegram-watching-${connection.state}`;
+    banner.innerHTML = `
+      <div class="telegram-watching-copy">
+        <div class="telegram-watching-title">${connected ? 'Telegram notifications enabled' : 'Get notified about new episodes'}</div>
+        <div class="telegram-watching-desc">${connected
+          ? 'New episodes from your Watching list will be sent to Telegram.'
+          : 'Connect Telegram and receive notifications when new episodes are released.'}</div>
+      </div>
+      <button class="telegram-watching-action" type="button">${connected ? 'Manage' : connection.state === 'disabled' ? 'Enable' : 'Connect Telegram'}</button>`;
+    banner.querySelector('.telegram-watching-action').addEventListener('click', async () => {
+      if (connection.state === 'disabled') {
+        await notifierRequest('/api/telegram/enable', { method: 'POST' });
+        renderTelegramWatchingBanner();
+      } else {
+        openTelegramPopup();
+      }
+    });
+  } catch {
+    banner.remove();
+  }
+}
+
 // ─── LANG DETECTION ───────────────────────────────────────────────
 function detectLang(text) {
   if (!/[\u0400-\u04FF]/.test(text)) return null;
@@ -830,12 +861,15 @@ function renderWatchlistTab(tab) {
   const items = Object.values(watchlist).filter(v=>v.status===tab).map(v=>v.item);
   const c = document.getElementById('main-content');
   const labels = { watchlist:'No titles in your watchlist yet.', watching:'Not watching anything yet.', watched:'No watched titles yet.' };
+  const telegramBanner = tab === 'watching' && currentUser ? '<div id="telegram-watching-banner"></div>' : '';
   if (!items.length) {
-    c.innerHTML = `<div class="empty-state empty-state-status">${statusIcon(tab)}<p>${labels[tab]}</p></div>`;
+    c.innerHTML = `${telegramBanner}<div class="empty-state empty-state-status">${statusIcon(tab)}<p>${labels[tab]}</p></div>`;
+    if (telegramBanner) renderTelegramWatchingBanner();
     return;
   }
-  c.innerHTML = `<div class="section-label">${items.length} title${items.length!==1?'s':''}</div><div class="grid" id="g-wl"></div>`;
+  c.innerHTML = `${telegramBanner}<div class="section-label">${items.length} title${items.length!==1?'s':''}</div><div class="grid" id="g-wl"></div>`;
   renderCards(items.map(i=>({...i, media_type: i.media_type||(i.title?'movie':'tv')})), 'g-wl');
+  if (telegramBanner) renderTelegramWatchingBanner();
 }
 
 function showLoading() { document.getElementById('main-content').innerHTML = '<div class="spinner"></div>'; }
