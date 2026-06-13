@@ -7,6 +7,7 @@ Cloudflare Pages.
 
 - `index.html`, `css/`, `js/`: client application
 - TMDB browser requests use the rate-limited notifier Worker proxy
+- `functions/api/tmdb/` redirects older cached PWA clients to the Worker proxy
 - `supabase/`: RLS and optional signup allowlist SQL
 - `_headers`: Cloudflare Pages security headers
 - `SECURITY.md`: deployment security setup

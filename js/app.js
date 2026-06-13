@@ -288,11 +288,12 @@ async function bootApp() {
     history.replaceState(null, '', window.location.pathname);
   }
 
-  try {
-    await Promise.all([loadGenres(), loadWatchlist(), loadEpisodeChecks()]);
-  } catch (error) {
-    showToast(error.message);
-  }
+  const [userDataResult, genresResult] = await Promise.allSettled([
+    Promise.all([loadWatchlist(), loadEpisodeChecks()]),
+    loadGenres()
+  ]);
+  if (userDataResult.status === 'rejected') showToast(userDataResult.reason?.message || 'Could not load your saved titles.');
+  if (genresResult.status === 'rejected') console.warn('Could not load TMDB genres:', genresResult.reason);
 
   document.getElementById('auth-gate').style.setProperty('display', 'none', 'important');
   setDisplay('loading-screen', 'none');
