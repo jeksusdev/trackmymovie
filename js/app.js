@@ -22,6 +22,7 @@ let _popupData   = null;
 let _statusChange = null;
 let searchController = null;
 let lastFocusedElement = null;
+let telegramConnectionPoll = null;
 
 function isGuestBuildHost() {
   const host = window.location.hostname;
@@ -593,10 +594,34 @@ async function connectTelegram() {
     const result = await notifierRequest('/api/telegram/connect', { method: 'POST' });
     if (telegramWindow) telegramWindow.location.replace(result.deepLink);
     else window.open(result.deepLink, '_blank', 'noopener,noreferrer');
+    watchTelegramConnection();
   } catch (error) {
     telegramWindow?.close();
     throw error;
   }
+}
+
+function watchTelegramConnection() {
+  clearInterval(telegramConnectionPoll);
+  let checks = 0;
+  const refresh = async () => {
+    checks += 1;
+    try {
+      const connection = await notifierRequest('/api/telegram/status');
+      if (connection.state === 'connected') {
+        clearInterval(telegramConnectionPoll);
+        telegramConnectionPoll = null;
+      }
+      if (document.getElementById('telegram-popup').style.display === 'flex') renderTelegramState(connection);
+      if (document.getElementById('telegram-watching-banner')) renderTelegramWatchingBanner();
+    } catch {}
+    if (checks >= 40) {
+      clearInterval(telegramConnectionPoll);
+      telegramConnectionPoll = null;
+    }
+  };
+  refresh();
+  telegramConnectionPoll = setInterval(refresh, 3000);
 }
 
 async function renderTelegramWatchingBanner() {
