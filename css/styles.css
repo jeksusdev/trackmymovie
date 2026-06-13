@@ -452,9 +452,11 @@
   main { flex: 1; padding: 1.5rem; max-width: 1400px; margin: 0 auto; width: 100%; }
 
   .section-label {
-    font-family: var(--font-display);
+    font-family: var(--font-body);
     font-size: 13px;
     font-weight: 700;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
     color: #c8c5e0;
     letter-spacing: 0.06em;
     text-transform: uppercase;
