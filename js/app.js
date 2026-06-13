@@ -3,6 +3,7 @@ const SUPABASE_URL  = 'https://qpxaiztckfbcktfzsmmb.supabase.co';
 const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFweGFpenRja2ZiY2t0ZnpzbW1iIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA3NTg3NDUsImV4cCI6MjA5NjMzNDc0NX0.5kZ-owTKhGaGdawpDfWW0lIFUafsYMOqcNMSwtZk8Wo';
 const TMDB_BASE     = '/api/tmdb';
 const IMG           = 'https://image.tmdb.org/t/p/';
+const NOTIFIER_BASE = 'https://trackmymovie-notifier.jeksusdev.workers.dev';
 
 let sb = null;
 const { escapeHtml, itemKey, itemType, normalizeStoredWatchlist } = window.TrackMyMovieCore;
@@ -314,6 +315,9 @@ document.addEventListener('DOMContentLoaded', async () => {
   document.querySelector('#status-popup .modal-backdrop').addEventListener('click', closeStatusPopup);
   document.getElementById('status-popup-confirm').addEventListener('click', confirmStatusChange);
   document.querySelector('#status-popup .modal-cancel').addEventListener('click', closeStatusPopup);
+  document.querySelector('#telegram-popup .modal-backdrop').addEventListener('click', closeTelegramPopup);
+  document.querySelector('#telegram-popup .modal-cancel').addEventListener('click', closeTelegramPopup);
+  document.getElementById('telegram-popup').addEventListener('keydown', trapDialogFocus);
   document.getElementById('watched-popup-backdrop').addEventListener('click', closeWatchedPopup);
   document.querySelector('#watched-popup .wpop-confirm').addEventListener('click', confirmWatched);
   document.querySelector('#watched-popup .wpop-cancel').addEventListener('click', closeWatchedPopup);
@@ -458,12 +462,17 @@ function renderUserArea() {
   info.append(fullName, email);
   const divider = document.createElement('div');
   divider.className = 'user-menu-divider';
+  const telegramButton = document.createElement('button');
+  telegramButton.className = 'user-menu-btn user-menu-telegram';
+  telegramButton.setAttribute('role', 'menuitem');
+  telegramButton.textContent = 'Telegram Notifications';
+  telegramButton.addEventListener('click', openTelegramPopup);
   const signOutButton = document.createElement('button');
   signOutButton.className = 'user-menu-btn';
   signOutButton.setAttribute('role', 'menuitem');
   signOutButton.textContent = '⎋ Sign out';
   signOutButton.addEventListener('click', signOut);
-  menu.append(info, divider, signOutButton);
+  menu.append(info, divider, telegramButton, signOutButton);
   area.append(pill, menu);
 }
 
@@ -475,6 +484,99 @@ function toggleUserMenu() {
 document.addEventListener('click', e => {
   if (!e.target.closest('.user-pill')) document.getElementById('user-menu')?.classList.remove('open');
 });
+
+// ─── TELEGRAM NOTIFICATIONS ──────────────────────────────────────
+async function notifierRequest(path, options = {}) {
+  const { data, error } = await sb.auth.getSession();
+  if (error || !data?.session?.access_token) throw new Error('Please sign in again.');
+  const response = await fetch(`${NOTIFIER_BASE}${path}`, {
+    ...options,
+    headers: {
+      Authorization: `Bearer ${data.session.access_token}`,
+      'Content-Type': 'application/json',
+      ...(options.headers || {})
+    }
+  });
+  const payload = await response.json().catch(() => ({}));
+  if (!response.ok) throw new Error(payload.error || 'Telegram notifications are unavailable.');
+  return payload;
+}
+
+function closeTelegramPopup() {
+  const popup = document.getElementById('telegram-popup');
+  popup.style.display = 'none';
+  popup.setAttribute('aria-hidden', 'true');
+}
+
+async function openTelegramPopup() {
+  const popup = document.getElementById('telegram-popup');
+  const state = document.getElementById('telegram-state');
+  const actions = document.getElementById('telegram-actions');
+  popup.style.display = 'flex';
+  popup.setAttribute('aria-hidden', 'false');
+  state.textContent = 'Checking connection…';
+  actions.replaceChildren();
+
+  try {
+    renderTelegramState(await notifierRequest('/api/telegram/status'));
+  } catch (error) {
+    state.textContent = error.message;
+  }
+}
+
+function telegramAction(label, className, handler) {
+  const button = document.createElement('button');
+  button.type = 'button';
+  button.className = `modal-btn ${className}`;
+  button.textContent = label;
+  button.addEventListener('click', async () => {
+    button.disabled = true;
+    try {
+      await handler();
+    } catch (error) {
+      showToast(error.message);
+      button.disabled = false;
+    }
+  });
+  return button;
+}
+
+function renderTelegramState(connection) {
+  const state = document.getElementById('telegram-state');
+  const actions = document.getElementById('telegram-actions');
+  actions.replaceChildren();
+  if (connection.state === 'not_connected') {
+    state.textContent = 'Not connected';
+    actions.append(telegramAction('Connect', 'telegram-primary', connectTelegram));
+    return;
+  }
+
+  const suffix = connection.username ? ` · @${connection.username}` : '';
+  state.textContent = connection.state === 'connected'
+    ? `Connected${suffix}`
+    : `Notifications disabled${suffix}`;
+  if (connection.state === 'connected') {
+    actions.append(telegramAction('Disable', 'modal-cancel', async () => {
+      await notifierRequest('/api/telegram/disable', { method: 'POST' });
+      renderTelegramState(await notifierRequest('/api/telegram/status'));
+    }));
+  } else {
+    actions.append(telegramAction('Enable', 'telegram-primary', async () => {
+      await notifierRequest('/api/telegram/enable', { method: 'POST' });
+      renderTelegramState(await notifierRequest('/api/telegram/status'));
+    }));
+  }
+  actions.append(telegramAction('Reconnect', 'modal-cancel', connectTelegram));
+  actions.append(telegramAction('Disconnect', 'telegram-danger', async () => {
+    await notifierRequest('/api/telegram/disconnect', { method: 'DELETE' });
+    renderTelegramState({ state: 'not_connected' });
+  }));
+}
+
+async function connectTelegram() {
+  const result = await notifierRequest('/api/telegram/connect', { method: 'POST' });
+  window.location.assign(result.deepLink);
+}
 
 // ─── LANG DETECTION ───────────────────────────────────────────────
 function detectLang(text) {
