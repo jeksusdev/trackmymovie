@@ -569,17 +569,20 @@ function renderTelegramState(connection) {
     actions.append(telegramAction('Disable', 'modal-cancel', async () => {
       await notifierRequest('/api/telegram/disable', { method: 'POST' });
       renderTelegramState(await notifierRequest('/api/telegram/status'));
+      renderTelegramWatchingBanner();
     }));
   } else {
     actions.append(telegramAction('Enable', 'telegram-primary', async () => {
       await notifierRequest('/api/telegram/enable', { method: 'POST' });
       renderTelegramState(await notifierRequest('/api/telegram/status'));
+      renderTelegramWatchingBanner();
     }));
   }
   actions.append(telegramAction('Reconnect', 'modal-cancel', connectTelegram));
   actions.append(telegramAction('Disconnect', 'telegram-danger', async () => {
     await notifierRequest('/api/telegram/disconnect', { method: 'DELETE' });
     renderTelegramState({ state: 'not_connected' });
+    renderTelegramWatchingBanner();
   }));
 }
 
