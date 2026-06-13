@@ -507,16 +507,16 @@
     box-shadow: 0 0 0 1px rgba(124,106,247,0.35), 0 8px 28px rgba(124,106,247,0.12);
   }
   .card.card-status-watching {
-    border-color: var(--amber);
-    box-shadow: 0 0 0 1px rgba(245,166,35,0.3), 0 8px 28px rgba(245,166,35,0.1);
-  }
-  .card.card-status-watched {
     border-color: var(--success);
     box-shadow: 0 0 0 1px rgba(52,200,122,0.3), 0 8px 28px rgba(52,200,122,0.1);
   }
+  .card.card-status-watched {
+    border-color: var(--amber);
+    box-shadow: 0 0 0 1px rgba(245,166,35,0.3), 0 8px 28px rgba(245,166,35,0.1);
+  }
   .card.card-status-watchlist:hover { border-color: var(--accent2); }
-  .card.card-status-watching:hover { border-color: #ffc45e; }
-  .card.card-status-watched:hover { border-color: #62e29a; }
+  .card.card-status-watching:hover { border-color: #62e29a; }
+  .card.card-status-watched:hover { border-color: #ffc45e; }
   .card-poster {
     width: 100%;
     height: auto;
@@ -635,16 +635,16 @@
     box-shadow: 0 0 14px rgba(124,106,247,0.35);
   }
   .wl-btn.wl-active-watching {
-    border-color: var(--amber);
-    background: rgba(245,166,35,0.25);
-    color: var(--amber);
-    box-shadow: 0 0 14px rgba(245,166,35,0.3);
-  }
-  .wl-btn.wl-active-watched {
     border-color: var(--success);
     background: rgba(52,200,122,0.24);
     color: var(--success);
     box-shadow: 0 0 14px rgba(52,200,122,0.28);
+  }
+  .wl-btn.wl-active-watched {
+    border-color: var(--amber);
+    background: rgba(245,166,35,0.25);
+    color: var(--amber);
+    box-shadow: 0 0 14px rgba(245,166,35,0.3);
   }
 
   /* EMPTY STATE */
@@ -942,8 +942,8 @@
   }
   .action-btn.act-watching svg { fill: currentColor; stroke-width: 1.8; }
   .action-btn.act-watchlist.active { background: var(--accent-bg); border-color: var(--accent); color: var(--accent2); }
-  .action-btn.act-watching.active { background: var(--amber-bg); border-color: var(--amber); color: var(--amber); }
-  .action-btn.act-watched.active { background: var(--success-bg); border-color: var(--success); color: var(--success); }
+  .action-btn.act-watching.active { background: var(--success-bg); border-color: var(--success); color: var(--success); }
+  .action-btn.act-watched.active { background: var(--amber-bg); border-color: var(--amber); color: var(--amber); }
 
   .detail-desc {
     font-size: 15px;
