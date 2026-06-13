@@ -33,3 +33,19 @@ test('TMDB client builds proxy URLs and forwards abort signals', async () => {
   assert.equal(captured.url, 'https://example.com/api/tmdb/search/multi?query=Silo');
   assert.equal(captured.options.signal, signal);
 });
+
+test('TMDB client supports a cross-origin rate-limited proxy', async () => {
+  let requested;
+  const tmdbFetch = createTmdbClient(
+    'https://worker.example/api/tmdb',
+    'https://staging.example',
+    async url => {
+      requested = url;
+      return { ok: true, json: async () => ({ ok: true }) };
+    }
+  );
+
+  await tmdbFetch('tv/42', { language: 'en-US' });
+  assert.equal(requested.origin, 'https://worker.example');
+  assert.equal(requested.pathname, '/api/tmdb/tv/42');
+});

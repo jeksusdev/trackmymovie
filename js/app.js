@@ -1,7 +1,7 @@
 // ─── CONFIG ───────────────────────────────────────────────────────
 const SUPABASE_URL  = 'https://qpxaiztckfbcktfzsmmb.supabase.co';
 const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFweGFpenRja2ZiY2t0ZnpzbW1iIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA3NTg3NDUsImV4cCI6MjA5NjMzNDc0NX0.5kZ-owTKhGaGdawpDfWW0lIFUafsYMOqcNMSwtZk8Wo';
-const TMDB_BASE     = '/api/tmdb';
+const TMDB_BASE     = 'https://trackmymovie-notifier.jeksusdev.workers.dev/api/tmdb';
 const IMG           = 'https://image.tmdb.org/t/p/';
 const NOTIFIER_BASE = 'https://trackmymovie-notifier.jeksusdev.workers.dev';
 

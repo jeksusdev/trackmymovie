@@ -6,7 +6,7 @@ Cloudflare Pages.
 ## Structure
 
 - `index.html`, `css/`, `js/`: client application
-- `functions/api/tmdb/`: server-side TMDB proxy
+- TMDB browser requests use the rate-limited notifier Worker proxy
 - `supabase/`: RLS and optional signup allowlist SQL
 - `_headers`: Cloudflare Pages security headers
 - `SECURITY.md`: deployment security setup

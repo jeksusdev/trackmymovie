@@ -28,13 +28,11 @@ Authentication > Users.
 
 ## TMDB
 
-TMDB requests use the Cloudflare Pages Function at `/api/tmdb/*`.
+TMDB requests use the rate-limited notifier Worker endpoint at `/api/tmdb/*`.
 
 1. Rotate any TMDB key that has ever appeared in Git history.
-2. In Cloudflare Pages > Settings > Variables and Secrets, add the encrypted
-   secret `TMDB_API_KEY` for both Preview and Production.
-3. Redeploy both branches.
-4. Add a Cloudflare rate-limiting rule for `/api/tmdb/*`.
+2. In the notifier Worker, store `TMDB_API_KEY` as an encrypted secret.
+3. Redeploy the notifier Worker.
 
 ## Public repository
 

@@ -24,7 +24,6 @@ jobs:
           node --check js/api.js
           node --check js/app.js
           node --check sw.js
-          node --check 'functions/api/tmdb/[[path]].js'
 
       - name: Run unit tests
         run: node --test tests/*.test.js
@@ -72,7 +71,7 @@ jobs:
             echo 'Inline event handler detected.'
             exit 1
           fi
-          if grep -RInE --include='*.js' 'api\.themoviedb\.org|const TMDB_KEY' js; then
+          if grep -RInE --include='*.js' 'api\.themoviedb\.org|const TMDB_KEY|TMDB_BASE[[:space:]]*=[[:space:]]*['"'"'"]\/api\/tmdb' js; then
             echo 'Direct TMDB client access or key detected.'
             exit 1
           fi
