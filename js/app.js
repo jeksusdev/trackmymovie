@@ -807,7 +807,12 @@ function renderDetail(data, type) {
             ${year?`<span class="chip">${year}</span>`:''}
             <span class="chip">${type==='tv'?'Series':'Movie'}</span>
             ${data.vote_average?`<span class="chip tmdb-rating"><strong>TMDB</strong> ★ ${Math.round(data.vote_average*10)/10}</span>`:''}
-            ${imdbUrl?`<a class="chip imdb-link" href="${imdbUrl}" target="_blank" rel="noopener noreferrer">IMDb ↗</a>`:''}
+            ${imdbUrl?`<a class="chip imdb-link" href="${imdbUrl}" target="_blank" rel="noopener noreferrer">
+              IMDb
+              <svg class="external-link-icon" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M8 16 16 8M10 8h6v6"></path>
+              </svg>
+            </a>`:''}
             ${airBadgeHtml}
           </div>
         </div>
@@ -817,7 +822,9 @@ function renderDetail(data, type) {
             <button class="trailer-preview" type="button" data-youtube-key="${trailer.key}" aria-label="Play trailer">
               <img src="https://i.ytimg.com/vi/${trailer.key}/hqdefault.jpg" alt="" width="480" height="360" loading="lazy" decoding="async">
               <span class="trailer-shade"></span>
-              <span class="trailer-play">▶</span>
+              <span class="trailer-play" aria-hidden="true">
+                <svg viewBox="0 0 24 24"><path d="m9 6 10 6-10 6V6Z"></path></svg>
+              </span>
               <span class="trailer-cta">Watch trailer</span>
             </button>
           </div>` : ''}

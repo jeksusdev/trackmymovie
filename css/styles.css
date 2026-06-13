@@ -779,6 +779,15 @@
     font-weight: 800;
     text-decoration: none;
   }
+  .external-link-icon {
+    width: 12px;
+    height: 12px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2.3;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
   .imdb-link:hover { background: #ffd84d; border-color: #ffd84d; }
   .detail-trailer {
     width: min(320px, 36vw);
@@ -837,12 +846,18 @@
     transform: translate(-50%, -50%);
     display: grid;
     place-items: center;
-    padding-left: 3px;
     border-radius: 50%;
     background: rgba(240,80,80,0.92);
     box-shadow: 0 6px 20px rgba(240,80,80,0.4);
     font-size: 17px;
     transition: transform 0.2s, background 0.2s;
+  }
+  .trailer-play svg {
+    width: 22px;
+    height: 22px;
+    fill: currentColor;
+    stroke: none;
+    margin-left: 2px;
   }
   .trailer-cta {
     position: absolute;
