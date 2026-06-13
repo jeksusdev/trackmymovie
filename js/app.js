@@ -20,6 +20,7 @@ let airStatusCache = {};
 let _popupShowId = null;
 let _popupData   = null;
 let _statusChange = null;
+let _detailStatusChanged = false;
 let searchController = null;
 let lastFocusedElement = null;
 let telegramConnectionPoll = null;
@@ -919,6 +920,7 @@ function renderError()  { document.getElementById('main-content').innerHTML = `<
 // ─── DETAIL ───────────────────────────────────────────────────────
 async function openDetail(id, type) {
   if (!['movie', 'tv'].includes(type) || !Number.isInteger(Number(id))) return;
+  _detailStatusChanged = false;
   document.getElementById('app').style.display = 'none';
   const dv = document.getElementById('detail-view');
   dv.style.display = 'flex';
@@ -1073,6 +1075,7 @@ function renderDetail(data, type) {
     btn.addEventListener('click', async () => {
       const s = btn.dataset.s;
       await toggleWatchlistDB(id, s, data);
+      _detailStatusChanged = true;
       updateCounts();
       const newState = watchlist[itemKey(id, type)]?.status || null;
       dv.querySelectorAll('.action-btn').forEach(b => b.classList.remove('active'));
@@ -1272,6 +1275,7 @@ async function confirmWatched() {
     }
   }
   updateCounts();
+  _detailStatusChanged = true;
   document.querySelectorAll('.action-btn').forEach(b=>b.classList.remove('active'));
   document.querySelector('.act-watched')?.classList.add('active');
   tickAllRenderedEpisodes();
@@ -1287,6 +1291,10 @@ function closeDetail() {
   stopActiveTrailer(true);
   document.getElementById('detail-view').style.display = 'none';
   document.getElementById('app').style.setProperty('display', 'flex', 'important');
+  if (_detailStatusChanged) {
+    _detailStatusChanged = false;
+    switchTab(currentTab, true);
+  }
 }
 
 if ('serviceWorker' in navigator) {
