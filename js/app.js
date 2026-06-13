@@ -627,8 +627,8 @@ function watchTelegramConnection() {
 async function renderTelegramWatchingBanner() {
   const banner = document.getElementById('telegram-watching-banner');
   if (!banner || !currentUser) return;
-  banner.className = 'telegram-watching-banner telegram-watching-loading';
-  banner.textContent = 'Checking Telegram notifications…';
+  banner.className = 'telegram-watching-pending';
+  banner.replaceChildren();
   try {
     const connection = await notifierRequest('/api/telegram/status');
     if (!document.getElementById('telegram-watching-banner')) return;

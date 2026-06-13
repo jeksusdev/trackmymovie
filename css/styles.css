@@ -478,7 +478,7 @@
     background: linear-gradient(135deg, rgba(85,172,238,0.12), rgba(124,106,247,0.08));
   }
   .telegram-watching-connected { border-color: rgba(52,200,122,0.38); background: var(--success-bg); }
-  .telegram-watching-loading { color: var(--text3); font-size: 12px; }
+  .telegram-watching-pending { display: none; }
   .telegram-watching-content { display: flex; align-items: center; gap: 12px; min-width: 0; }
   .telegram-watching-icon {
     display: flex;
