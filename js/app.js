@@ -87,6 +87,19 @@ function safeImageUrl(value, allowedOrigins) {
   }
 }
 
+function stopActiveTrailer(remove = false) {
+  const iframe = document.querySelector('#detail-view .trailer-iframe');
+  if (!iframe) return;
+  try {
+    iframe.contentWindow?.postMessage(JSON.stringify({
+      event: 'command',
+      func: 'stopVideo',
+      args: []
+    }), 'https://www.youtube-nocookie.com');
+  } catch {}
+  if (remove) iframe.remove();
+}
+
 function statusIcon(status) {
   const paths = {
     watchlist: 'M7 4.5h10a1 1 0 0 1 1 1v15l-6-3.7-6 3.7v-15a1 1 0 0 1 1-1Z',
@@ -312,6 +325,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     else if (document.getElementById('watched-popup').style.display === 'flex') closeWatchedPopup();
     else if (document.getElementById('detail-view').style.display === 'flex') closeDetail();
   });
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) stopActiveTrailer();
+  });
+  window.addEventListener('pagehide', () => stopActiveTrailer(true));
 
   if (isGuestBuildHost()) {
     setDisplay('auth-gate', 'none');
@@ -856,7 +873,7 @@ function renderDetail(data, type) {
   dv.querySelector('.trailer-preview')?.addEventListener('click', function() {
     const key = this.dataset.youtubeKey;
     const iframe = document.createElement('iframe');
-    iframe.src = `https://www.youtube-nocookie.com/embed/${key}?autoplay=1&rel=0`;
+    iframe.src = `https://www.youtube-nocookie.com/embed/${key}?autoplay=1&rel=0&enablejsapi=1&playsinline=1`;
     iframe.title = 'Trailer';
     iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
     iframe.allowFullscreen = true;
@@ -1080,6 +1097,7 @@ function closeWatchedPopup() {
 }
 
 function closeDetail() {
+  stopActiveTrailer(true);
   document.getElementById('detail-view').style.display = 'none';
   document.getElementById('app').style.setProperty('display', 'flex', 'important');
 }
