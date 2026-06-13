@@ -477,6 +477,25 @@
   }
   .telegram-watching-connected { border-color: rgba(52,200,122,0.38); background: var(--success-bg); }
   .telegram-watching-loading { color: var(--text3); font-size: 12px; }
+  .telegram-watching-content { display: flex; align-items: center; gap: 12px; min-width: 0; }
+  .telegram-watching-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    flex-shrink: 0;
+    border: 1px solid rgba(85,172,238,0.42);
+    border-radius: 50%;
+    background: rgba(85,172,238,0.14);
+    color: #78c4f5;
+  }
+  .telegram-watching-icon svg { width: 20px; height: 20px; fill: currentColor; }
+  .telegram-watching-connected .telegram-watching-icon {
+    border-color: rgba(52,200,122,0.42);
+    background: rgba(52,200,122,0.13);
+    color: var(--success);
+  }
   .telegram-watching-copy { min-width: 0; }
   .telegram-watching-title {
     color: var(--text);

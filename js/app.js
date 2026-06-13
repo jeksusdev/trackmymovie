@@ -599,11 +599,16 @@ async function renderTelegramWatchingBanner() {
     const connected = connection.state === 'connected';
     banner.className = `telegram-watching-banner telegram-watching-${connection.state}`;
     banner.innerHTML = `
-      <div class="telegram-watching-copy">
-        <div class="telegram-watching-title">${connected ? 'Telegram notifications enabled' : 'Get notified about new episodes'}</div>
-        <div class="telegram-watching-desc">${connected
-          ? 'New episodes from your Watching list will be sent to Telegram.'
-          : 'Connect Telegram and receive notifications when new episodes are released.'}</div>
+      <div class="telegram-watching-content">
+        <div class="telegram-watching-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><path d="M20.6 4.1 3.8 10.6c-1.1.4-1.1 1.1-.2 1.4l4.3 1.3 1.7 5.1c.2.6.1.8.8.8.5 0 .8-.2 1-.4l2.1-2 4.4 3.2c.8.5 1.4.2 1.6-.8l2.9-13.7c.3-1.2-.5-1.8-1.8-1.4ZM9.2 13l8.4-5.3c.4-.2.8-.1.5.2l-6.9 6.2-.3 3.3L9.2 13Z"></path></svg>
+        </div>
+        <div class="telegram-watching-copy">
+          <div class="telegram-watching-title">${connected ? 'Telegram notifications enabled' : 'Get notified about new episodes'}</div>
+          <div class="telegram-watching-desc">${connected
+            ? 'New episodes from your Watching list will be sent to Telegram.'
+            : 'Connect Telegram and receive notifications when new episodes are released.'}</div>
+        </div>
       </div>
       <button class="telegram-watching-action" type="button">${connected ? 'Manage' : connection.state === 'disabled' ? 'Enable' : 'Connect Telegram'}</button>`;
     banner.querySelector('.telegram-watching-action').addEventListener('click', async () => {
