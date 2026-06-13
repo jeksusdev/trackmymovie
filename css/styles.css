@@ -264,7 +264,7 @@
     cursor: pointer;
     transition: all 0.2s;
   }
-  .user-guest-btn:hover { border-color: var(--danger); color: var(--danger); }
+  .user-guest-btn:hover { border-color: var(--accent); color: var(--text); }
 
   .user-menu {
     display: none;

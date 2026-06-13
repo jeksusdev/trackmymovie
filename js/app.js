@@ -125,6 +125,10 @@ async function signInGoogle() {
 
 async function signOut() {
   if (sb && currentUser) await sb.auth.signOut();
+  if (isGuestBuildHost()) {
+    window.location.reload();
+    return;
+  }
   currentUser = null;
   watchlist = {};
   episodeChecks = {};
@@ -334,13 +338,6 @@ document.addEventListener('DOMContentLoaded', async () => {
   });
   window.addEventListener('pagehide', () => stopActiveTrailer(true));
 
-  if (isGuestBuildHost()) {
-    setDisplay('auth-gate', 'none');
-    setDisplay('loading-screen', 'flex');
-    await bootApp();
-    return;
-  }
-
   const getSB = () => new Promise(resolve => {
     if (typeof supabase !== 'undefined') return resolve(true);
     let waited = 0;
@@ -354,6 +351,12 @@ document.addEventListener('DOMContentLoaded', async () => {
   const loaded = await getSB();
   if (!loaded) {
     console.warn('Supabase not loaded');
+    if (isGuestBuildHost()) {
+      setDisplay('auth-gate', 'none');
+      setDisplay('loading-screen', 'flex');
+      await bootApp();
+      return;
+    }
     setDisplay('loading-screen', 'none');
     setDisplay('auth-gate', 'flex');
     return;
@@ -388,6 +391,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (session?.user) {
       currentUser = session.user;
       await bootApp();
+    } else if (isGuestBuildHost()) {
+      await bootApp();
     } else {
       setDisplay('loading-screen', 'none');
       setDisplay('auth-gate', 'flex');
@@ -396,6 +401,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Listen for sign out
     sb.auth.onAuthStateChange(async (event, session) => {
       if (event === 'SIGNED_OUT') {
+        if (isGuestBuildHost()) {
+          window.location.reload();
+          return;
+        }
         currentUser = null;
         watchlist = {};
         episodeChecks = {};
@@ -415,10 +424,11 @@ function renderUserArea() {
   const area = document.getElementById('user-area');
   area.replaceChildren();
   if (!currentUser) {
-    const guest = document.createElement(isGuestBuildHost() ? 'span' : 'button');
+    const guest = document.createElement('button');
     guest.className = 'user-guest-btn';
-    guest.textContent = isGuestBuildHost() ? 'Guest mode' : '⎋ Guest';
-    if (!isGuestBuildHost()) guest.addEventListener('click', signOut);
+    guest.type = 'button';
+    guest.textContent = isGuestBuildHost() ? 'Sign in' : '⎋ Guest';
+    guest.addEventListener('click', isGuestBuildHost() ? signInGoogle : signOut);
     area.appendChild(guest);
     return;
   }
